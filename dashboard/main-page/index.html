@@ -22,6 +22,7 @@
                 <nav class="nav-menu">
                     <button class="menu-btn active" onclick="switchPage('service')">service</button>
                     <button class="menu-btn" onclick="switchPage('community')">community scripts</button>
+                    <button class="menu-btn" onclick="switchPage('yours')">your scripts</button>
                     <button class="menu-btn">feedback</button>
                 </nav>
             </div>
@@ -83,7 +84,15 @@
                 <h1>Community Scripts</h1>
                 <button class="action-btn" onclick="showSubmitModal()">submit script</button>
             </div>
-            <div class="script-list" id="script-display-area"></div>
+            <div class="script-list" id="community-list"></div>
+        </main>
+
+        <main class="workspace hide" id="page-yours">
+            <div class="community-header">
+                <h1>Your Private Scripts</h1>
+                <button class="action-btn" onclick="showSubmitModal()">submit script</button>
+            </div>
+            <div class="script-list" id="private-list"></div>
         </main>
 
         <div class="side-widgets">
@@ -110,6 +119,12 @@
                 
                 <label>Enter your script here:</label>
                 <textarea id="post-content" placeholder="print('hello world')"></textarea>
+
+                <label>Public script?</label>
+                <select id="post-public">
+                    <option value="yes">Yes (Community)</option>
+                    <option value="no">No (Private)</option>
+                </select>
                 
                 <div class="pass-toggle-area">
                     <label class="checkbox-container">
