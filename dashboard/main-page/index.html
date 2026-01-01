@@ -20,12 +20,11 @@
             <div class="top-section">
                 <div class="brand-title">OBFUS VAULT</div>
                 <nav class="nav-menu">
-                    <button class="menu-btn active">service</button>
-                    <button class="menu-btn">community</button>
+                    <button class="menu-btn active" onclick="switchPage('service')">service</button>
+                    <button class="menu-btn" onclick="switchPage('community')">community scripts</button>
                     <button class="menu-btn">feedback</button>
                 </nav>
             </div>
-
             <div class="bottom-section">
                 <div class="profile-card">
                     <span class="user-id" id="user-display">DiscordUser#0000</span>
@@ -34,28 +33,27 @@
             </div>
         </aside>
 
-        <main class="workspace">
+        <main class="workspace" id="page-service">
             <div class="ui-header">
                 <div class="header-left">
                     <select id="main-mode">
-                        <option value="deobfuscator">Deobfuscator</option>
-                        <option value="obfuscator">Obfuscator</option>
+                        <option value="deobfuscator">Deobfuscator Mode</option>
+                        <option value="obfuscator">Obfuscator Mode</option>
                     </select>
                 </div>
-
                 <div class="header-right">
                     <div id="deob-settings" class="settings-row">
                         <select id="deob-target">
-                            <option value="auto">Auto Detection</option>
+                            <option value="auto">Auto Detect</option>
                             <option value="m1">Moonsec V1/V2</option>
+                            <option value="luarmor">Luarmor V4</option>
                             <option value="js">JS Devirtualizer</option>
                         </select>
                         <button class="action-btn glow" id="trigger-deob">Deobfuscate</button>
                     </div>
-
                     <div id="obf-settings" class="settings-row hide">
                         <select id="obf-mode">
-                            <option value="lua-vm">Roblox VM</option>
+                            <option value="lua-vm">Roblox Lua VM</option>
                             <option value="js-vm">Chrome JS VM</option>
                         </select>
                         <button class="action-btn glow" id="trigger-obf">Obfuscate</button>
@@ -65,14 +63,11 @@
 
             <div class="editor-shell">
                 <div class="editor-view" id="editor-wrap">
-                    <div class="line-numbers"></div>
-                    <textarea id="main-editor" spellcheck="false" placeholder="Waiting for code input or script pull..."></textarea>
+                    <textarea id="main-editor" spellcheck="false" placeholder="Waiting for code..."></textarea>
                 </div>
-
                 <div class="loader-overlay" id="work-loader">
                     <div class="loader-content">
                         <div class="scan-line"></div>
-                        <div class="spinner"></div>
                         <div class="loader-msg" id="loader-msg">READY</div>
                         <div class="progress-box">
                             <div class="progress-bar" id="load-fill"></div>
@@ -83,23 +78,68 @@
             </div>
         </main>
 
+        <main class="workspace hide" id="page-community">
+            <div class="community-header">
+                <h1>Community Scripts</h1>
+                <button class="action-btn" onclick="showSubmitModal()">submit script</button>
+            </div>
+            <div class="script-list" id="script-display-area"></div>
+        </main>
+
         <div class="side-widgets">
             <div class="floating-terminal">
                 <div class="term-head">CONSOLE OUTPUT</div>
-                <div class="term-body" id="console-output">
-                    <div class="term-line">> System initialized.</div>
-                </div>
+                <div class="term-body" id="console-output"></div>
             </div>
-
             <div class="code-puller">
                 <div class="puller-head">VAULT PULLER</div>
                 <div class="puller-body">
-                    <p class="pull-hint">Paste GitHub, Pastebin, or Luarmor links</p>
-                    <input type="text" id="pull-url" placeholder="Enter URL here...">
+                    <input type="text" id="pull-url" placeholder="Paste GitHub, Luarmor, or Pastebin...">
                     <button id="btn-pull">Pull & Retrieve</button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="modal-overlay hide" id="submit-modal">
+        <div class="submit-card">
+            <h2>Post New Script</h2>
+            <div class="input-stack">
+                <label>Enter script title:</label>
+                <input type="text" id="post-title" placeholder="My Script Name">
+                
+                <label>Enter your script here:</label>
+                <textarea id="post-content" placeholder="print('hello world')"></textarea>
+                
+                <div class="pass-toggle-area">
+                    <label class="checkbox-container">
+                        include password for your script
+                        <input type="checkbox" id="use-pass" onclick="togglePassInput()">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+
+                <div class="pass-input-box hide" id="pass-field">
+                    <label>Enter password for users to view your script.</label>
+                    <div class="pass-wrapper">
+                        <input type="password" id="post-pass" placeholder="Password">
+                        <button type="button" class="show-btn" onclick="togglePassView()">show</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-btns">
+                <button class="modal-cancel" onclick="hideSubmitModal()">cancel</button>
+                <button class="modal-confirm" id="btn-post-script">post script</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="raw-viewer hide" id="raw-viewer">
+        <div class="viewer-top">
+            <span id="viewer-title">Script View</span>
+            <button onclick="closeViewer()">close</button>
+        </div>
+        <pre id="raw-code-display"></pre>
     </div>
 
     <script src="mainpage.js"></script>
