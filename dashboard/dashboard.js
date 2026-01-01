@@ -27,7 +27,7 @@ togglePassBtn.addEventListener('click', () => {
 switchModeBtn.addEventListener('click', () => {
     isLoginMode = !isLoginMode;
     authTitle.textContent = isLoginMode ? 'Login' : 'Create Account';
-    authSubmit.textContent = isLoginMode ? 'Login.' : 'Create account.';
+    authSubmit.textContent = isLoginMode ? 'Login' : 'Create account';
     toggleText.textContent = isLoginMode ? "Don't have an account?" : "Already have an account?";
     switchModeBtn.textContent = isLoginMode ? "Create one here." : "Login here.";
     errorMsg.style.display = 'none';
@@ -52,7 +52,7 @@ authSubmit.addEventListener('click', () => {
     const users = getUsers();
     errorMsg.style.display = 'none';
     if (user.length < 4) {
-        errorMsg.textContent = 'username need to have more then 4 user.';
+        errorMsg.textContent = 'Username must be at least 4 characters.';
         errorMsg.style.display = 'block';
         return;
     }
