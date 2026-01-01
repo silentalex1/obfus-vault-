@@ -1,12 +1,12 @@
-const bg = document.getElementById('bgEngine');
-const overlay = document.getElementById('mainOverlay');
-const cards = document.querySelectorAll('.f-card');
-const modals = document.querySelectorAll('.modal-content');
+const bg = document.getElementById('parallaxBg');
+const overlay = document.getElementById('globalOverlay');
+const cards = document.querySelectorAll('.feature-card');
+const modals = document.querySelectorAll('.modal');
 
 window.addEventListener('mousemove', (e) => {
     if (!bg) return;
-    const x = (e.clientX / window.innerWidth - 0.5) * 50;
-    const y = (e.clientY / window.innerHeight - 0.5) * 50;
+    const x = (e.clientX / window.innerWidth - 0.5) * 80;
+    const y = (e.clientY / window.innerHeight - 0.5) * 80;
     bg.style.transform = `translate(${-x}px, ${-y}px)`;
 });
 
