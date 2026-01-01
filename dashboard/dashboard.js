@@ -34,28 +34,33 @@ switchModeBtn.addEventListener('click', () => {
 });
 
 discordBtn.addEventListener('click', () => {
-    window.location.href = DISCORD_AUTH_URL;
+    const w = 500;
+    const h = 800;
+    const left = (window.screen.width / 2) - (w / 2);
+    const top = (window.screen.height / 2) - (h / 2);
+    
+    window.open(
+        DISCORD_AUTH_URL, 
+        "Discord Auth", 
+        `width=${w},height=${h},top=${top},left=${left},scrollbars=yes,resizable=yes`
+    );
 });
 
 authSubmit.addEventListener('click', () => {
     const user = usernameInput.value.trim();
     const pass = passwordInput.value.trim();
     const users = getUsers();
-
     errorMsg.style.display = 'none';
-
     if (user.length < 4) {
         errorMsg.textContent = 'username need to have more then 4 user.';
         errorMsg.style.display = 'block';
         return;
     }
-
     if (pass.length < 1) {
         errorMsg.textContent = 'Please enter a password.';
         errorMsg.style.display = 'block';
         return;
     }
-
     if (isLoginMode) {
         const found = users.find(u => u.username === user && u.password === pass);
         if (found) {
