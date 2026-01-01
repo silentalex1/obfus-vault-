@@ -1,42 +1,28 @@
-const mouseGlow = document.getElementById('mouseGlow');
-document.addEventListener('mousemove', (e) => {
-    mouseGlow.style.left = e.clientX + 'px';
-    mouseGlow.style.top = e.clientY + 'px';
-});
-
-const cards = document.querySelectorAll('.glass-card');
-const overlay = document.getElementById('modalOverlay');
-const windows = document.querySelectorAll('.modal-window');
+const overlay = document.getElementById('mainOverlay');
+const cards = document.querySelectorAll('.feature-card');
+const modals = document.querySelectorAll('.modal-box');
 
 cards.forEach(card => {
     card.addEventListener('click', (e) => {
-        const targetId = card.getAttribute('data-modal');
-        const targetWindow = document.getElementById(targetId);
+        const id = card.getAttribute('data-modal');
+        const target = document.getElementById(id);
         
         overlay.style.display = 'flex';
-        setTimeout(() => {
-            overlay.style.opacity = '1';
-            targetWindow.style.display = 'block';
-            setTimeout(() => targetWindow.style.transform = 'scale(1)', 10);
-        }, 10);
+        modals.forEach(m => m.style.display = 'none');
+        target.style.display = 'block';
         
         e.stopPropagation();
     });
 });
 
-const closeModal = () => {
-    overlay.style.opacity = '0';
-    windows.forEach(win => win.style.transform = 'scale(0.9)');
-    setTimeout(() => {
-        overlay.style.display = 'none';
-        windows.forEach(win => win.style.display = 'none');
-    }, 400);
-};
-
 overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeModal();
+    if (e.target === overlay) {
+        overlay.style.display = 'none';
+    }
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') {
+        overlay.style.display = 'none';
+    }
 });
