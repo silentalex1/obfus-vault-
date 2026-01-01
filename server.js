@@ -7,6 +7,7 @@ const PORT = 3000;
 
 app.use(express.json());
 app.use(cors());
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
 
@@ -58,4 +59,4 @@ app.get('/s/:id', (req, res) => {
     res.send(`<html><body style="background:#fff;color:#000;font-family:monospace;white-space:pre-wrap;padding:20px;">${script.content.replace(/</g, "&lt;")}</body></html>`);
 });
 
-app.listen(PORT, () => console.log(`Server: ${PORT}`));
+app.listen(PORT, () => console.log(`API: http://localhost:${PORT}`));
