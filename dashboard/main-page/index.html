@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Obfus Vault</title>
+    <title>Main Page | Obfus Vault</title>
     <link rel="stylesheet" href="mainpage.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,83 +15,87 @@
         <div class="layer glow-center"></div>
     </div>
 
-    <div class="page-container">
+    <div class="layout-wrapper">
         <aside class="side-panel">
-            <div class="panel-top">
-                <div class="brand-name">OBFUS VAULT</div>
-                <nav class="nav-links">
-                    <button class="nav-link active">service</button>
-                    <button class="nav-link">scripts</button>
-                    <button class="nav-link">suggestion</button>
+            <div class="top-section">
+                <div class="brand-title">OBFUS VAULT</div>
+                <nav class="nav-menu">
+                    <button class="menu-btn active">service</button>
+                    <button class="menu-btn">scripts</button>
+                    <button class="menu-btn">suggestion</button>
                 </nav>
             </div>
 
-            <div class="panel-bottom">
-                <div class="user-profile">
-                    <div class="user-meta">
-                        <span class="user-tag" id="user-display">DiscordUser#0000</span>
-                        <span class="user-role">Premium Member</span>
-                    </div>
+            <div class="bottom-section">
+                <div class="profile-card">
+                    <span class="user-id" id="user-display">DiscordUser#0000</span>
+                    <span class="user-tag">Premium Member</span>
                 </div>
             </div>
         </aside>
 
-        <main class="work-area">
-            <div class="action-header">
-                <div class="mode-box">
-                    <select id="mode-selector">
+        <main class="workspace">
+            <div class="ui-header">
+                <div class="mode-selector">
+                    <select id="main-mode">
                         <option value="deobfuscator">Deobfuscator Mode</option>
                         <option value="obfuscator">Obfuscator Mode</option>
                     </select>
                 </div>
 
-                <div class="tool-group">
-                    <div id="deob-ui" class="control-row">
-                        <select id="lang-target">
-                            <option value="auto">Auto Detection</option>
+                <div class="tool-settings">
+                    <div id="deob-settings" class="settings-row">
+                        <select id="deob-target">
+                            <option value="auto">Auto Detect</option>
                             <option value="m1">Moonsec V1</option>
                             <option value="m2">Moonsec V2</option>
-                            <option value="js">Javascript</option>
+                            <option value="js">JS Obfuscator</option>
                         </select>
-                        <button class="run-btn" id="run-deob">Deobfuscate</button>
+                        <button class="action-btn" id="trigger-deob">Deobfuscate</button>
                     </div>
 
-                    <div id="obf-ui" class="control-row hidden">
-                        <select id="obf-type">
-                            <option value="vm">Custom VM</option>
-                            <option value="max">Max Protection</option>
+                    <div id="obf-settings" class="settings-row hide">
+                        <select id="obf-mode">
+                            <option value="lua-vm">Roblox Lua VM</option>
+                            <option value="js-vm">JS Obfuscator</option>
                         </select>
-                        <button class="run-btn" id="run-obf">Obfuscate</button>
+                        <button class="action-btn" id="trigger-obf">Obfuscate</button>
                     </div>
                 </div>
             </div>
 
-            <div class="middle-section">
-                <div class="editor-box">
-                    <div class="editor-window" id="editor-wrap">
-                        <textarea id="code-input" spellcheck="false" placeholder="Paste your script here..."></textarea>
-                    </div>
-
-                    <div class="loading-ui" id="process-loader">
-                        <div class="loader-wrap">
-                            <div class="spin-circle"></div>
-                            <div class="load-msg" id="load-msg">Ready</div>
-                            <div class="bar-outer">
-                                <div class="bar-inner" id="bar-fill"></div>
-                            </div>
-                            <div class="bar-text" id="bar-val">0%</div>
-                        </div>
-                    </div>
+            <div class="editor-shell">
+                <div class="editor-view" id="editor-wrap">
+                    <textarea id="main-editor" spellcheck="false" placeholder="Paste code or use the puller..."></textarea>
                 </div>
 
-                <div class="console-box">
-                    <div class="console-head">SYSTEM CONSOLE</div>
-                    <div class="console-body" id="log-list">
-                        <div class="log-line">System online and ready...</div>
+                <div class="loader-overlay" id="work-loader">
+                    <div class="loader-content">
+                        <div class="spinner"></div>
+                        <div class="loader-msg" id="loader-msg">Ready</div>
+                        <div class="progress-box">
+                            <div class="progress-bar" id="load-fill"></div>
+                        </div>
+                        <div class="progress-num" id="load-val">0%</div>
                     </div>
                 </div>
             </div>
         </main>
+
+        <div class="floating-terminal">
+            <div class="term-head">SYSTEM CONSOLE</div>
+            <div class="term-body" id="console-output">
+                <div class="term-line">System online.</div>
+            </div>
+        </div>
+
+        <div class="code-puller">
+            <div class="puller-head">SCRIPT PULLER</div>
+            <div class="puller-body">
+                <input type="text" id="pull-url" placeholder="Paste GitHub or Loadstring link...">
+                <button id="btn-pull">Pull Code</button>
+            </div>
+        </div>
     </div>
 
     <script src="mainpage.js"></script>
