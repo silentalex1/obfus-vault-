@@ -10,66 +10,66 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="background-engine" id="bgEngine">
+    <div class="viewport-bg" id="parallaxBg">
+        <div class="layer layer-base"></div>
         <div class="layer layer-grid"></div>
         <div class="layer layer-glow"></div>
     </div>
 
     <nav>
-        <div class="nav-inner">
+        <div class="nav-content">
             <div class="logo">OBFUS VAULT</div>
-            <div class="nav-links">
-                <a href="#" class="nav-btn">Home</a>
-                <a href="#" class="nav-btn">Dashboard</a>
+            <div class="links">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Dashboard</a>
             </div>
         </div>
     </nav>
 
-    <main class="wrapper">
+    <main class="container">
         <section class="hero">
-            <h1 class="tilted-title">Ready to <span class="highlight-box">protect</span> your script for your project?</h1>
-            <p class="hero-sub">PROTECT. POST. SECURE.</p>
-            <div class="scroll-arrow">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 13L12 18L17 13M7 6L12 11L17 6" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+            <h1 class="main-title">Ready to <span class="accent-box">protect</span> your script for your project?</h1>
+            <p class="hero-desc">PROTECT. POST. SECURE.</p>
+            <div class="indicator">
+                <div class="indicator-line"></div>
+                <div class="indicator-arrow"></div>
             </div>
         </section>
 
         <section class="features">
-            <p class="feature-tag">Heres what obfus vault premium has got you covered.</p>
-            <div class="grid">
-                <div class="f-card" data-modal="m1">
-                    <div class="f-tag">PROTECTION</div>
+            <p class="label">Heres what obfus vault premium has got you covered.</p>
+            <div class="feature-grid">
+                <div class="feature-card" data-modal="m1">
+                    <div class="chip">PROTECTION</div>
                     <h3>Obfuscation</h3>
                     <p>Polymorphic VM engine and multi-layered encryption protocols.</p>
-                    <div class="f-link">View Features</div>
+                    <div class="inspect">View Features</div>
                 </div>
 
-                <div class="f-card" data-modal="m2">
-                    <div class="f-tag">INTELLIGENCE</div>
+                <div class="feature-card" data-modal="m2">
+                    <div class="chip">INTELLIGENCE</div>
                     <h3>Client & Miscs</h3>
                     <p>Executor spoofing and high-tier AI deobfuscation resistance.</p>
-                    <div class="f-link">View Features</div>
+                    <div class="inspect">View Features</div>
                 </div>
 
-                <div class="f-card" data-modal="m3">
-                    <div class="f-tag">SECURE</div>
+                <div class="feature-card" data-modal="m3">
+                    <div class="chip">SECURE</div>
                     <h3>Cloud Vault</h3>
                     <p>Secure script hosting and global community distribution.</p>
-                    <div class="f-link">View Features</div>
+                    <div class="inspect">View Features</div>
                 </div>
             </div>
         </section>
 
-        <section class="cta">
-            <h2 class="cta-header">Ready to buy premium?</h2>
-            <a href="https://discord.gg/HVN5smcC3Z" class="buy-link">Buy Premium here.</a>
+        <section class="purchase">
+            <h2 class="purchase-title">Ready to buy premium?</h2>
+            <a href="https://discord.gg/HVN5smcC3Z" class="btn-buy">Buy Premium here.</a>
         </section>
     </main>
 
-    <div class="modal-overlay" id="mainOverlay">
-        <div class="modal-content" id="m1">
+    <div class="overlay" id="globalOverlay">
+        <div class="modal" id="m1">
             <h2>Obfuscation Stack</h2>
             <div class="list">
                 <div class="row">[+] Strong Polymorphic VM</div>
@@ -83,7 +83,7 @@
             </div>
         </div>
 
-        <div class="modal-content" id="m2">
+        <div class="modal" id="m2">
             <h2>Client Intelligence</h2>
             <div class="list">
                 <div class="row">[+] Environment Spoofing & Anti-Executor Detection</div>
@@ -92,7 +92,7 @@
             </div>
         </div>
 
-        <div class="modal-content" id="m3">
+        <div class="modal" id="m3">
             <h2>Cloud Vault</h2>
             <div class="list">
                 <div class="row">[+] Global Database Access</div>
