@@ -2,49 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Obfus Vault</title>
     <link rel="stylesheet" href="mainpage.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="blacklist-screen" class="hide">
-        <div class="blacklist-card">
-            <h1>Sorry our system has detected you being blacklisted. Was this a mistake?</h1>
-            <p>if you believe that this was a mistake please make a support ticket in the <a href="https://discord.gg/HVN5smcC3Z">discord server</a>.</p>
-        </div>
+    <div class="static-bg">
+        <div class="layer grid-pattern"></div>
+        <div class="layer glow-center"></div>
     </div>
-
-    <div class="static-bg"><div class="layer grid-pattern"></div><div class="layer glow-center"></div></div>
 
     <div class="layout-wrapper">
         <aside class="side-panel">
-            <div class="brand-title">OBFUS VAULT</div>
-            <nav class="nav-menu">
-                <button class="menu-btn active" onclick="switchPage('service')">obfuscator / deobfuscator</button>
-                <button class="menu-btn" onclick="switchPage('community')">community scripts</button>
-                <button class="menu-btn" onclick="switchPage('yours')">your scripts</button>
-            </nav>
-            <div class="profile-card">
-                <span id="user-display">DiscordUser#0000</span>
-                <span id="user-tier">Freemium</span>
+            <div class="top-section">
+                <div class="brand-title">OBFUS VAULT</div>
+                <nav class="nav-menu">
+                    <button class="menu-btn active" onclick="switchPage('service')">obfuscator / deobfuscator</button>
+                    <button class="menu-btn" onclick="switchPage('community')">community scripts</button>
+                    <button class="menu-btn" onclick="switchPage('yours')">your scripts</button>
+                    <button class="menu-btn">feedback</button>
+                </nav>
+            </div>
+            <div class="bottom-section">
+                <div class="profile-card">
+                    <span class="user-id" id="user-display">DiscordUser#0000</span>
+                    <span class="user-tag" id="user-tier">Freemium</span>
+                </div>
             </div>
         </aside>
 
         <main class="workspace" id="page-service">
             <div class="ui-header">
-                <select id="main-mode"><option value="deobfuscator">Deobfuscator</option><option value="obfuscator">Obfuscator</option></select>
-                <div class="settings-row" id="deob-settings">
-                    <select id="deob-target"><option value="auto">Auto Detect</option><option value="m1">Moonsec</option></select>
-                    <button class="action-btn" id="trigger-deob">Deobfuscate</button>
+                <div class="header-left">
+                    <select id="main-mode">
+                        <option value="deobfuscator">Deobfuscator Mode</option>
+                        <option value="obfuscator">Obfuscator Mode</option>
+                    </select>
                 </div>
-                <div class="settings-row hide" id="obf-settings">
-                    <select id="obf-mode"><option value="lua-vm">Roblox VM</option></select>
-                    <button class="action-btn" id="trigger-obf">Obfuscate</button>
+                <div class="header-right">
+                    <div id="deob-settings" class="settings-row">
+                        <select id="deob-target">
+                            <option value="auto">Auto Detect</option>
+                            <option value="m1">Moonsec V1/V2</option>
+                            <option value="js">JS Devirtualizer</option>
+                        </select>
+                        <button class="action-btn glow" id="trigger-deob">Deobfuscate</button>
+                    </div>
+                    <div id="obf-settings" class="settings-row hide">
+                        <select id="obf-mode">
+                            <option value="lua-vm">Roblox Lua VM</option>
+                            <option value="js-vm">Chrome JS VM</option>
+                        </select>
+                        <button class="action-btn glow" id="trigger-obf">Obfuscate</button>
+                    </div>
                 </div>
             </div>
             <div class="editor-shell">
-                <textarea id="main-editor" spellcheck="false" placeholder="Paste code..."></textarea>
+                <div class="editor-view" id="editor-wrap">
+                    <textarea id="main-editor" spellcheck="false" placeholder="Waiting for code..."></textarea>
+                </div>
                 <div class="loader-overlay" id="work-loader">
                     <div class="loader-content">
                         <div class="scan-line"></div>
@@ -57,21 +76,30 @@
         </main>
 
         <main class="workspace hide" id="page-community">
-            <div class="community-header"><h1>Community</h1><button class="action-btn" onclick="showSubmitModal()">submit script</button></div>
-            <div id="community-list" class="script-list"></div>
+            <div class="community-header">
+                <h1>Community Scripts</h1>
+                <button class="action-btn" onclick="showSubmitModal()">submit script</button>
+            </div>
+            <div class="script-list" id="community-list"></div>
         </main>
 
         <main class="workspace hide" id="page-yours">
-            <div class="community-header"><h1>Yours</h1></div>
-            <div id="private-list" class="script-list"></div>
+            <div class="community-header">
+                <h1>Your Private Scripts</h1>
+            </div>
+            <div class="script-list" id="private-list"></div>
         </main>
 
         <div class="side-widgets">
             <div class="floating-terminal">
-                <div class="term-head"><span>CONSOLE</span><button class="clear-btn-big" onclick="clearConsole()">clear</button></div>
-                <div id="console-output" class="term-body"></div>
+                <div class="term-head">
+                    <span>CONSOLE OUTPUT</span>
+                    <button class="clear-btn-big" onclick="clearConsole()">clear</button>
+                </div>
+                <div class="term-body" id="console-output"></div>
             </div>
             <div class="code-puller">
+                <div class="puller-head">VAULT PULLER</div>
                 <div class="puller-body">
                     <input type="text" id="pull-url" placeholder="URL Link...">
                     <button id="btn-pull">Pull & Retrieve</button>
@@ -82,20 +110,31 @@
 
     <div class="modal-overlay hide" id="submit-modal">
         <div class="submit-card">
-            <h2>Post Script</h2>
+            <h2>Post New Script</h2>
             <div class="input-stack">
-                <input type="text" id="post-title" placeholder="Title">
+                <label>Title</label>
+                <input type="text" id="post-title" placeholder="Script Name">
+                <label>Code Content</label>
                 <div class="syntax-box">
                     <textarea id="post-content" oninput="updateSyntax()" spellcheck="false"></textarea>
                     <div id="syntax-layer"></div>
                 </div>
-                <select id="post-public"><option value="yes">Public</option><option value="no">Private</option></select>
-                <div class="check-row"><span>Password?</span><label class="switch"><input type="checkbox" id="use-pass" onclick="togglePassInput()"><span class="slider"></span></label></div>
-                <div id="pass-field" class="hide"><input type="password" id="post-pass" placeholder="Password"></div>
+                <label>Public?</label>
+                <select id="post-public"><option value="yes">Yes</option><option value="no">No</option></select>
+                <div class="check-row">
+                    <span>Password Protect?</span>
+                    <label class="switch"><input type="checkbox" id="use-pass" onclick="togglePassInput()"><span class="slider"></span></label>
+                </div>
+                <div class="pass-box hide" id="pass-field">
+                    <div class="pass-input-row">
+                        <input type="password" id="post-pass" placeholder="Password">
+                        <button type="button" class="view-btn" onclick="togglePassView()">show</button>
+                    </div>
+                </div>
             </div>
             <div class="modal-btns">
-                <button onclick="hideSubmitModal()">cancel</button>
-                <button id="btn-post-script" class="modal-confirm">post</button>
+                <button class="modal-cancel" onclick="hideSubmitModal()">cancel</button>
+                <button class="modal-confirm" id="btn-post-script">post script</button>
             </div>
         </div>
     </div>
