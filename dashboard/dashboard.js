@@ -33,7 +33,6 @@ switchModeBtn.addEventListener('click', () => {
     errorMsg.style.display = 'none';
 });
 
-// UPDATED: Now redirects in the same window instead of opening a popup
 discordBtn.addEventListener('click', () => {
     window.location.href = DISCORD_AUTH_URL;
 });
