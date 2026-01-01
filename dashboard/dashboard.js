@@ -27,7 +27,7 @@ togglePassBtn.addEventListener('click', () => {
 switchModeBtn.addEventListener('click', () => {
     isLoginMode = !isLoginMode;
     authTitle.textContent = isLoginMode ? 'Login' : 'Create Account';
-    authSubmit.textContent = isLoginMode ? 'Login' : 'Create account';
+    authSubmit.textContent = isLoginMode ? 'Login.' : 'Create account.';
     toggleText.textContent = isLoginMode ? "Don't have an account?" : "Already have an account?";
     switchModeBtn.textContent = isLoginMode ? "Create one here." : "Login here.";
     errorMsg.style.display = 'none';
@@ -35,7 +35,7 @@ switchModeBtn.addEventListener('click', () => {
 
 discordBtn.addEventListener('click', () => {
     const w = 500;
-    const h = 750;
+    const h = 800;
     const left = (window.screen.width / 2) - (w / 2);
     const top = (window.screen.height / 2) - (h / 2);
     
@@ -52,7 +52,7 @@ authSubmit.addEventListener('click', () => {
     const users = getUsers();
     errorMsg.style.display = 'none';
     if (user.length < 4) {
-        errorMsg.textContent = 'Username must be at least 4 characters.';
+        errorMsg.textContent = 'username need to have more then 4 user.';
         errorMsg.style.display = 'block';
         return;
     }
