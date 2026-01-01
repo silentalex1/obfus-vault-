@@ -69,30 +69,30 @@ async function handleWork(m) {
     if (!c) return log("Error: Empty buffer.");
     loader.style.display = 'flex';
     let p = 0;
-    const stages = m === 'deob' ? ["IDENTIFYING VM", "DECRYPTING", "RECONSTRUCTING", "SUCCESS"] : ["VIRTUALIZING", "ENCRYPTING", "PACKING", "SUCCESS"];
+    const stages = m === 'deob' ? ["VIRTUALIZING", "IDENTIFYING VM", "SUCCESS"] : ["CRYPTING", "VM PACKING", "SUCCESS"];
     const t = setInterval(() => {
-        p += 2; barFill.style.width = p + '%'; barVal.innerText = p + '%';
+        p += 1; barFill.style.width = p + '%'; barVal.innerText = p + '%';
         barMsg.innerText = stages[Math.min(Math.floor((p/100)*stages.length), stages.length-1)];
         if (p >= 100) {
             clearInterval(t);
             editor.value = m === 'deob' ? customDeob(c) : `loadstring("${btoa(c)}")()`;
             updateSyntax('main');
-            setTimeout(() => { loader.style.display = 'none'; log(`${m.toUpperCase()} complete.`, true); }, 400);
+            setTimeout(() => { loader.style.display = 'none'; log(`${m.toUpperCase()} process complete.`, true); }, 500);
         }
-    }, 15);
+    }, 20);
 }
 
 document.getElementById('btn-pull').addEventListener('click', async () => {
     let u = document.getElementById('pull-url').value.trim();
-    if (!u) return log("Error: Invalid URL.");
-    log("Retreiving script...");
+    if (!u) return;
+    log("Requesting script source...");
     try {
         const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`);
         const d = await r.text();
         editor.value = d;
         updateSyntax('main');
-        log("Successfully pulled to output buffer.", true);
-    } catch(e) { log("Pull failed."); }
+        log("Code retrieved successfully.", true);
+    } catch(e) { log("Retrieval failed."); }
 });
 
 async function renderScripts() {
@@ -100,17 +100,15 @@ async function renderScripts() {
     const pl = document.getElementById('private-list');
     const u = document.getElementById('user-display').innerText;
     cl.innerHTML = ''; pl.innerHTML = '';
-    try {
-        const r = await fetch('/api/scripts');
-        const data = await r.json();
-        data.forEach(s => {
-            const div = document.createElement('div');
-            div.className = 'script-card';
-            div.innerHTML = `<div><h3>${s.title}</h3><p>By ${s.owner}</p></div><div style="display:flex;gap:10px;"><button class="action-btn" onclick="copyLink('${s.id}')">copy link</button><button class="action-btn" onclick="window.open('/s/${s.id}','_blank')">view</button></div>`;
-            if (s.public === "yes") cl.appendChild(div);
-            else if (s.owner === u) pl.appendChild(div);
-        });
-    } catch(e) { log("Server Sync Failed."); }
+    const r = await fetch('/api/scripts');
+    const data = await r.json();
+    data.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'script-card';
+        div.innerHTML = `<div><h3>${s.title}</h3><p>By ${s.owner}</p></div><div style="display:flex;gap:10px;"><button class="action-btn" onclick="copyLink('${s.id}')">copy link</button><button class="action-btn" onclick="window.open('/s/${s.id}','_blank')">view</button></div>`;
+        if (s.public === "yes") cl.appendChild(div);
+        else if (s.owner === u) pl.appendChild(div);
+    });
 }
 
 document.getElementById('btn-post-script').addEventListener('click', async () => {
@@ -119,17 +117,12 @@ document.getElementById('btn-post-script').addEventListener('click', async () =>
     const p = document.getElementById('post-public').value;
     const o = document.getElementById('user-display').innerText;
     if (!t || !c) return;
-    try {
-        const res = await fetch('/api/scripts', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ title: t, content: c, public: p, owner: o })
-        });
-        if (res.ok) {
-            hideSubmitModal(); renderScripts();
-            log("Server: Script data synchronized.", true);
-        }
-    } catch(e) { log("Error posting script."); }
+    const res = await fetch('/api/scripts', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ title: t, content: c, public: p, owner: o, pass: document.getElementById('use-pass').checked ? document.getElementById('post-pass').value : null })
+    });
+    if (res.ok) { hideSubmitModal(); renderScripts(); log("Server: Script data synchronized.", true); }
 });
 
 window.copyLink = (id) => { navigator.clipboard.writeText(window.location.origin + "/s/" + id); log("Link copied."); };
@@ -141,8 +134,10 @@ document.getElementById('main-mode').addEventListener('change', (e) => {
     document.getElementById('obf-ui').classList.toggle('hide', e.target.value === 'deob');
 });
 
-window.onload = () => {
+window.onload = async () => {
     renderScripts(); 
     log("Backend connected.");
-    setTimeout(() => log("discord bot has connected to the website Sucessfully!", true), 800);
+    const statusRes = await fetch('/api/status');
+    const statusData = await statusRes.json();
+    if (statusData.bot_online) log("discord bot has connected to the website Sucessfully!", true);
 };
