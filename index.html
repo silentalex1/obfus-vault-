@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Obfus Vault | Next-Gen Integrity</title>
+    <title>Obfus Vault | Security</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="parallax-container" id="parallaxBg">
-        <div class="layer layer-base"></div>
+    <div class="background-engine" id="bgEngine">
         <div class="layer layer-grid"></div>
         <div class="layer layer-glow"></div>
     </div>
 
     <nav>
         <div class="nav-inner">
-            <div class="brand-logo">OBFUS VAULT</div>
-            <div class="nav-group">
+            <div class="logo">OBFUS VAULT</div>
+            <div class="nav-links">
                 <a href="#" class="nav-btn">Home</a>
                 <a href="#" class="nav-btn">Dashboard</a>
             </div>
@@ -28,76 +27,77 @@
 
     <main class="wrapper">
         <section class="hero">
-            <h1 class="hero-main">Ready to <span class="accent-box">protect</span> your script for your project?</h1>
+            <h1 class="tilted-title">Ready to <span class="highlight-box">protect</span> your script for your project?</h1>
             <p class="hero-sub">PROTECT. POST. SECURE.</p>
             <div class="scroll-arrow">
-                <div class="line"></div>
-                <div class="point"></div>
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 13L12 18L17 13M7 6L12 11L17 6" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
         </section>
 
-        <section class="feature-zone">
-            <p class="label-text">Heres what obfus vault premium has got you covered.</p>
-            <div class="feature-flex">
-                <div class="premium-card" data-modal="m-obf">
-                    <div class="status-tag">PROTECTION</div>
+        <section class="features">
+            <p class="feature-tag">Heres what obfus vault premium has got you covered.</p>
+            <div class="grid">
+                <div class="f-card" data-modal="m1">
+                    <div class="f-tag">PROTECTION</div>
                     <h3>Obfuscation</h3>
-                    <p>Polymorphic VM engine and multi-layered encryption protocols for maximum security.</p>
-                    <div class="card-footer">View Features</div>
+                    <p>Polymorphic VM engine and multi-layered encryption protocols.</p>
+                    <div class="f-link">View Features</div>
                 </div>
 
-                <div class="premium-card" data-modal="m-cli">
-                    <div class="status-tag">INTELLIGENCE</div>
+                <div class="f-card" data-modal="m2">
+                    <div class="f-tag">INTELLIGENCE</div>
                     <h3>Client & Miscs</h3>
-                    <p>Executor spoofing and high-tier AI deobfuscation resistance with custom hooks.</p>
-                    <div class="card-footer">View Features</div>
+                    <p>Executor spoofing and high-tier AI deobfuscation resistance.</p>
+                    <div class="f-link">View Features</div>
                 </div>
 
-                <div class="premium-card" data-modal="m-cld">
-                    <div class="status-tag">SECURE</div>
+                <div class="f-card" data-modal="m3">
+                    <div class="f-tag">SECURE</div>
                     <h3>Cloud Vault</h3>
-                    <p>Secure script hosting and global community distribution for your projects.</p>
-                    <div class="card-footer">View Features</div>
+                    <p>Secure script hosting and global community distribution.</p>
+                    <div class="f-link">View Features</div>
                 </div>
             </div>
         </section>
 
-        <section class="cta-zone">
-            <h2 class="cta-font">Ready to buy premium?</h2>
-            <a href="https://discord.gg/HVN5smcC3Z" class="btn-buy">Buy Premium here.</a>
+        <section class="cta">
+            <h2 class="cta-header">Ready to buy premium?</h2>
+            <a href="https://discord.gg/HVN5smcC3Z" class="buy-link">Buy Premium here.</a>
         </section>
     </main>
 
     <div class="modal-overlay" id="mainOverlay">
-        <div class="modal-card" id="m-obf">
+        <div class="modal-content" id="m1">
             <h2>Obfuscation Stack</h2>
-            <div class="item-list">
-                <div class="list-row">[+] Strong Polymorphic VM</div>
-                <div class="list-row">[+] Lua variable script rename</div>
-                <div class="list-row">[+] Multi-Layer Encryption</div>
-                <div class="list-row">[+] Advanced Control Flow Obfuscation</div>
-                <div class="list-row">[+] Bytecode Mutation & Anti-Decompiler</div>
-                <div class="list-row">[+] Anti-Leak Self-Destruction</div>
-                <div class="list-row">[+] High-Intensity Mode (Max Protection)</div>
-                <div class="list-row">[+] Advanced Control Flow Obfuscation</div>
+            <div class="list">
+                <div class="row">[+] Strong Polymorphic VM</div>
+                <div class="row">[+] Lua variable script rename</div>
+                <div class="row">[+] Multi-Layer Encryption</div>
+                <div class="row">[+] Advanced Control Flow Obfuscation</div>
+                <div class="row">[+] Bytecode Mutation & Anti-Decompiler</div>
+                <div class="row">[+] Anti-Leak Self-Destruction</div>
+                <div class="row">[+] High-Intensity Mode (Max Protection)</div>
+                <div class="row">[+] Advanced Control Flow Obfuscation</div>
             </div>
         </div>
 
-        <div class="modal-card" id="m-cli">
+        <div class="modal-content" id="m2">
             <h2>Client Intelligence</h2>
-            <div class="item-list">
-                <div class="list-row">[+] Environment Spoofing & Anti-Executor Detection</div>
-                <div class="list-row">[+] AI Illusion (Anti-AI Deobfuscation Logic)</div>
-                <div class="list-row">[+] Multi-Layer Hook Detection</div>
+            <div class="list">
+                <div class="row">[+] Environment Spoofing & Anti-Executor Detection</div>
+                <div class="row">[+] AI Illusion (Anti-AI Logic)</div>
+                <div class="row">[+] Multi-Layer Hook Detection</div>
             </div>
         </div>
 
-        <div class="modal-card" id="m-cld">
+        <div class="modal-content" id="m3">
             <h2>Cloud Vault</h2>
-            <div class="item-list">
-                <div class="list-row">[+] Global Database Access</div>
-                <div class="list-row">[+] Private Script Encryption</div>
-                <div class="list-row">[+] Real-time Analytics Dashboard</div>
+            <div class="list">
+                <div class="row">[+] Global Database Access</div>
+                <div class="row">[+] Private Script Encryption</div>
+                <div class="row">[+] Real-time Execution Logs</div>
             </div>
         </div>
     </div>
