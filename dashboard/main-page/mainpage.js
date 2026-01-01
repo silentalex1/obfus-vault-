@@ -1,88 +1,98 @@
 const deobBtn = document.getElementById('deob-btn');
-const input = document.getElementById('code-input');
-const loader = document.getElementById('loader');
-const editorWrap = document.getElementById('editor-wrap');
-const loaderMsg = document.getElementById('loader-msg');
-const progressFill = document.getElementById('progress-fill');
-const progressText = document.getElementById('progress-text');
-const consoleLogs = document.getElementById('console-logs');
+const inputField = document.getElementById('code-input');
+const loaderOverlay = document.getElementById('process-loader');
+const editorUi = document.getElementById('editor-ui');
+const statusMsg = document.getElementById('status-msg');
+const barFill = document.getElementById('bar-fill');
+const percentVal = document.getElementById('percent-val');
+const consoleBox = document.getElementById('console-logs');
 
-function logToConsole(text, isSuccess = false) {
-    const div = document.createElement('div');
-    div.className = isSuccess ? 'log-row success-log' : 'log-row';
-    div.textContent = `> ${text}`;
-    consoleLogs.appendChild(div);
-    consoleLogs.scrollTop = consoleLogs.scrollHeight;
+function log(text, success = false) {
+    const el = document.createElement('div');
+    el.className = success ? 'line line-success' : 'line';
+    el.textContent = `[system] ${text}`;
+    consoleBox.appendChild(el);
+    consoleBox.scrollTop = consoleBox.scrollHeight;
 }
 
-function runDeobLogic(code) {
-    // Improved logic wrapper
-    let result = code;
+function runDeobCore(code) {
+    let output = code;
 
-    // Detection
+    output = output.replace(/\(function\(\)\s*\(\[\[This file was protected with MoonSec.*?\]\]\)\s*:gsub\(['"](.)['"],\s*function\(./g, '');
+    output = output.replace(/local e=(\d+);local o=0;local n={};while o<e do o=o+1;n\[o\]=string\.char\(./g, '');
+    output = output.replace(/local a=(\d+);local i=0;local t=\{\};while i<a do i=i+1;t\[i\]=./g, '');
+    output = output.replace(/local function .+?end/g, '');
+    output = output.replace(/loadstring\(.+?\(\)\)\(\)/g, m => {
+        const inner = m.match(/loadstring\((.+?)\(\)\)\(\)/);
+        return inner ? inner[1] : '';
+    });
+    output = output.replace(/string\.char\(([^\)]+)\)/g, (_, num) => {
+        try {
+            const n = parseInt(num.replace(/\%\d+/g, m => String.fromCharCode(parseInt(m.slice(1)))));
+            return `"${String.fromCharCode(n)}"`;
+        } catch { return _; }
+    });
+    output = output.replace(/(\d+)\s*~\s*(\d+)/g, (_, a, b) => (parseInt(a) ^ parseInt(b)).toString());
+    
+    output = output.replace(/return loadstring\(string\.char\(table\.unpack\{([^}]+)\}\)\)\(\)/g, (_, bytes) => {
+        const nums = bytes.split(',').map(n => parseInt(n.trim()));
+        return nums.map(n => String.fromCharCode(n)).join('');
+    });
+    
+    output = output.replace(/bit32\.bxor\(([^,]+),\s*([^)]+)\)/g, (_, a, b) => (parseInt(a) ^ parseInt(b)).toString());
+
     const isLua = code.includes('local') || code.includes('function') || code.includes('--');
     const isJS = code.includes('var ') || code.includes('let ') || code.includes('const ') || code.includes('=>');
 
-    // Applied Regex Logic
-    result = result.replace(/\(function\(\)\s*\(\[\[This file was protected with MoonSec.*?\]\]\)\s*:gsub\(['"](.)['"],\s*function\(./g, '');
-    result = result.replace(/local e=(\d+);local o=0;local n={};while o<e do o=o+1;n\[o\]=string\.char\(./g, '');
-    result = result.replace(/return loadstring\(string\.char\(table\.unpack\{([^}]+)\}\)\)\(\)/g, (_, bytes) => {
-        try { return bytes.split(',').map(n => String.fromCharCode(parseInt(n.trim()))).join(''); } catch { return _; }
-    });
-    result = result.replace(/string\.char\(([^\)]+)\)/g, (_, num) => {
-        try { return `"${String.fromCharCode(parseInt(num))}"`; } catch { return _; }
-    });
-    result = result.replace(/bit32\.bxor\(([^,]+),\s*([^)]+)\)/g, (_, a, b) => (parseInt(a) ^ parseInt(b)).toString());
-    
-    // JS specific devirtualization patterns
-    if (isJS) {
-        result = result.replace(/_0x[a-f0-9]+\s*=\s*\[.*?\];/gs, '');
-    }
-
-    return { code: result, type: isJS ? 'js' : 'lua' };
+    return { 
+        code: output, 
+        lang: isJS ? 'js' : 'lua' 
+    };
 }
 
 deobBtn.addEventListener('click', () => {
-    const rawCode = input.value.trim();
-    if (!rawCode) return logToConsole("no code provided.");
+    const source = inputField.value.trim();
+    if (!source) return log("No code detected in editor.");
 
-    // UI Start
-    loader.style.display = 'flex';
-    editorWrap.classList.add('blurred');
+    loaderOverlay.style.display = 'flex';
+    editorUi.classList.add('is-blurry');
     
-    let progress = 0;
-    const stages = [
-        { p: 10, t: "detecting if its js or lua.." },
-        { p: 30, t: "" }, // Dynamic detection text
-        { p: 50, t: "measuring the security of the script.." },
-        { p: 80, t: "analyzing and bypassing core vm protection..." },
-        { p: 100, t: "succesfully deobfuscated!" }
+    let step = 0;
+    const timeline = [
+        { limit: 15, msg: "detecting if its js or lua.." },
+        { limit: 35, msg: "" }, 
+        { limit: 55, msg: "measuring the security of the script.." },
+        { limit: 85, msg: "analyzing and bypassing core vm protection.." },
+        { limit: 100, msg: "succesfully deobfuscated!" }
     ];
 
-    const isJS = rawCode.includes('var') || rawCode.includes('const');
-    stages[1].t = isJS ? "we have detected it being js" : "we have detected it being lua";
+    const isJS = source.includes('var') || source.includes('const') || source.includes('function(');
+    timeline[1].msg = isJS ? "we have detected it being js" : "we have detected it being lua";
 
-    const interval = setInterval(() => {
-        progress += 1;
-        progressFill.style.width = `${progress}%`;
-        progressText.innerText = `${progress}%`;
+    const task = setInterval(() => {
+        step += 1;
+        barFill.style.width = `${step}%`;
+        percentVal.innerText = `${step}%`;
 
-        const currentStage = stages.find(s => progress <= s.p);
-        if (currentStage) loaderMsg.innerText = currentStage.t;
+        const stage = timeline.find(s => step <= s.limit);
+        if (stage) statusMsg.innerText = stage.msg;
 
-        if (progress >= 100) {
-            clearInterval(interval);
+        if (step >= 100) {
+            clearInterval(task);
             
-            // Execute logic
-            const processed = runDeobLogic(rawCode);
-            input.value = processed.code;
+            const result = runDeobCore(source);
+            inputField.value = result.code;
 
-            // UI Reset
             setTimeout(() => {
-                loader.style.display = 'none';
-                editorWrap.classList.remove('blurred');
-                logToConsole(`${processed.type === 'js' ? 'js' : 'moonsec lua'} script has successfully been deobfuscated.`, true);
-            }, 600);
+                loaderOverlay.style.display = 'none';
+                editorUi.classList.remove('is-blurry');
+                
+                const finalMsg = result.lang === 'js' 
+                    ? "js script has successfully been deobfuscated." 
+                    : "moonsec lua script has successfully been deobfuscated.";
+                
+                log(finalMsg, true);
+            }, 500);
         }
-    }, 40);
+    }, 35);
 });
