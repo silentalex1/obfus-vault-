@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Obfus Vault</title>
+    <title>Main Panel | Obfus Vault</title>
     <link rel="stylesheet" href="mainpage.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -38,32 +36,24 @@
             <div class="ui-header">
                 <div class="header-left">
                     <select id="main-mode">
-                        <option value="deobfuscator">Deobfuscator Mode</option>
-                        <option value="obfuscator">Obfuscator Mode</option>
+                        <option value="deob">Deobfuscator</option>
+                        <option value="obf">Obfuscator</option>
                     </select>
                 </div>
                 <div class="header-right">
-                    <div id="deob-settings" class="settings-row">
-                        <select id="deob-target">
-                            <option value="auto">Auto Detect</option>
-                            <option value="m1">Moonsec V1/V2</option>
-                            <option value="js">JS Devirtualizer</option>
-                        </select>
-                        <button class="action-btn glow" id="trigger-deob">Deobfuscate</button>
+                    <div id="deob-ui" class="settings-row">
+                        <select id="deob-target"><option value="auto">Auto Detect</option><option value="m1">Moonsec</option></select>
+                        <button class="action-btn" id="run-deob">Deobfuscate</button>
                     </div>
-                    <div id="obf-settings" class="settings-row hide">
-                        <select id="obf-mode">
-                            <option value="lua-vm">Roblox Lua VM</option>
-                            <option value="js-vm">Chrome JS VM</option>
-                        </select>
-                        <button class="action-btn glow" id="trigger-obf">Obfuscate</button>
+                    <div id="obf-ui" class="settings-row hide">
+                        <select id="obf-mode"><option value="vm">Lua VM</option><option value="js">JS VM</option></select>
+                        <button class="action-btn" id="run-obf">Obfuscate</button>
                     </div>
                 </div>
             </div>
+
             <div class="editor-shell">
-                <div class="editor-view" id="editor-wrap">
-                    <textarea id="main-editor" spellcheck="false" placeholder="Waiting for code..."></textarea>
-                </div>
+                <textarea id="main-editor" spellcheck="false" placeholder="Paste code here..."></textarea>
                 <div class="loader-overlay" id="work-loader">
                     <div class="loader-content">
                         <div class="scan-line"></div>
@@ -76,7 +66,7 @@
         </main>
 
         <main class="workspace hide" id="page-community">
-            <div class="community-header">
+            <div class="section-header">
                 <h1>Community Scripts</h1>
                 <button class="action-btn" onclick="showSubmitModal()">submit script</button>
             </div>
@@ -84,8 +74,8 @@
         </main>
 
         <main class="workspace hide" id="page-yours">
-            <div class="community-header">
-                <h1>Your Private Scripts</h1>
+            <div class="section-header">
+                <h1>Your Scripts</h1>
             </div>
             <div class="script-list" id="private-list"></div>
         </main>
@@ -93,8 +83,8 @@
         <div class="side-widgets">
             <div class="floating-terminal">
                 <div class="term-head">
-                    <span>CONSOLE OUTPUT</span>
-                    <button class="clear-btn-big" onclick="clearConsole()">clear</button>
+                    <span>CONSOLE</span>
+                    <button class="clear-btn" onclick="clearConsole()">clear</button>
                 </div>
                 <div class="term-body" id="console-output"></div>
             </div>
@@ -112,32 +102,22 @@
         <div class="submit-card">
             <h2>Post New Script</h2>
             <div class="input-stack">
-                <label>Title</label>
-                <input type="text" id="post-title" placeholder="Script Name">
-                <label>Code Content</label>
+                <input type="text" id="post-title" placeholder="Title">
                 <div class="syntax-box">
                     <textarea id="post-content" oninput="updateSyntax()" spellcheck="false"></textarea>
                     <div id="syntax-layer"></div>
                 </div>
-                <label>Public?</label>
-                <select id="post-public"><option value="yes">Yes</option><option value="no">No</option></select>
-                <div class="check-row">
-                    <span>Password Protect?</span>
-                    <label class="switch"><input type="checkbox" id="use-pass" onclick="togglePassInput()"><span class="slider"></span></label>
-                </div>
-                <div class="pass-box hide" id="pass-field">
-                    <div class="pass-input-row">
-                        <input type="password" id="post-pass" placeholder="Password">
-                        <button type="button" class="view-btn" onclick="togglePassView()">show</button>
-                    </div>
-                </div>
+                <select id="post-public"><option value="yes">Public</option><option value="no">Private</option></select>
+                <div class="check-row"><span>Password?</span><label class="switch"><input type="checkbox" id="use-pass" onclick="togglePassInput()"><span class="slider"></span></label></div>
+                <div id="pass-field" class="hide"><input type="password" id="post-pass" placeholder="Password"></div>
             </div>
             <div class="modal-btns">
-                <button class="modal-cancel" onclick="hideSubmitModal()">cancel</button>
-                <button class="modal-confirm" id="btn-post-script">post script</button>
+                <button onclick="hideSubmitModal()">cancel</button>
+                <button id="btn-post-script" class="modal-confirm">post script</button>
             </div>
         </div>
     </div>
+
     <script src="mainpage.js"></script>
 </body>
 </html>
