@@ -10,65 +10,62 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="viewport-bg" id="parallaxBg">
-        <div class="layer layer-base"></div>
-        <div class="layer layer-grid"></div>
-        <div class="layer layer-glow"></div>
+    <div class="static-bg">
+        <div class="layer grid-pattern"></div>
+        <div class="layer glow-center"></div>
     </div>
 
     <nav>
-        <div class="nav-content">
+        <div class="nav-inner">
             <div class="logo">OBFUS VAULT</div>
-            <div class="links">
-                <a href="#" class="nav-link">Home</a>
-                <a href="#" class="nav-link">Dashboard</a>
+            <div class="nav-links">
+                <a href="/" class="nav-item">Home</a>
+                <a href="/dashboard" class="nav-item">Dashboard</a>
             </div>
         </div>
     </nav>
 
-    <main class="container">
+    <main class="content">
         <section class="hero">
-            <h1 class="main-title">Ready to <span class="accent-box">protect</span> your script for your project?</h1>
+            <h1 class="hero-title">Ready to <span class="blue-highlight">protect</span> your script for your project?</h1>
             <p class="hero-desc">PROTECT. POST. SECURE.</p>
-            <div class="indicator">
-                <div class="indicator-line"></div>
-                <div class="indicator-arrow"></div>
+            <div class="visual-indicator">
+                <div class="stem"></div>
+                <div class="arrow-head"></div>
             </div>
         </section>
 
         <section class="features">
             <p class="label">Heres what obfus vault premium has got you covered.</p>
             <div class="feature-grid">
-                <div class="feature-card" data-modal="m1">
-                    <div class="chip">PROTECTION</div>
+                <div class="f-card" data-modal="m1">
+                    <div class="badge">PROTECTION</div>
                     <h3>Obfuscation</h3>
                     <p>Polymorphic VM engine and multi-layered encryption protocols.</p>
-                    <div class="inspect">View Features</div>
+                    <div class="f-hint">View Features</div>
                 </div>
-
-                <div class="feature-card" data-modal="m2">
-                    <div class="chip">INTELLIGENCE</div>
+                <div class="f-card" data-modal="m2">
+                    <div class="badge">INTELLIGENCE</div>
                     <h3>Client & Miscs</h3>
                     <p>Executor spoofing and high-tier AI deobfuscation resistance.</p>
-                    <div class="inspect">View Features</div>
+                    <div class="f-hint">View Features</div>
                 </div>
-
-                <div class="feature-card" data-modal="m3">
-                    <div class="chip">SECURE</div>
+                <div class="f-card" data-modal="m3">
+                    <div class="badge">SECURE</div>
                     <h3>Cloud Vault</h3>
                     <p>Secure script hosting and global community distribution.</p>
-                    <div class="inspect">View Features</div>
+                    <div class="f-hint">View Features</div>
                 </div>
             </div>
         </section>
 
-        <section class="purchase">
-            <h2 class="purchase-title">Ready to buy premium?</h2>
-            <a href="https://discord.gg/HVN5smcC3Z" class="btn-buy">Buy Premium here.</a>
+        <section class="buy-section">
+            <h2 class="buy-text">Ready to buy premium?</h2>
+            <a href="https://discord.gg/HVN5smcC3Z" class="buy-btn">Buy Premium here.</a>
         </section>
     </main>
 
-    <div class="overlay" id="globalOverlay">
+    <div class="overlay" id="overlay">
         <div class="modal" id="m1">
             <h2>Obfuscation Stack</h2>
             <div class="list">
@@ -82,7 +79,6 @@
                 <div class="row">[+] Advanced Control Flow Obfuscation</div>
             </div>
         </div>
-
         <div class="modal" id="m2">
             <h2>Client Intelligence</h2>
             <div class="list">
@@ -91,7 +87,6 @@
                 <div class="row">[+] Multi-Layer Hook Detection</div>
             </div>
         </div>
-
         <div class="modal" id="m3">
             <h2>Cloud Vault</h2>
             <div class="list">
