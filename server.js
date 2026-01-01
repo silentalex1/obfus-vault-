@@ -9,10 +9,11 @@ app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
 const dbPath = path.join(__dirname, 'database.json');
+let botOnline = false;
 
 const getDB = () => {
     if (!fs.existsSync(dbPath)) {
-        const init = { scripts: [], users: {}, bot_online: false };
+        const init = { scripts: [], users: {} };
         fs.writeFileSync(dbPath, JSON.stringify(init));
         return init;
     }
@@ -42,25 +43,29 @@ app.post('/api/scripts', (req, res) => {
     res.status(200).json({ success: true, id });
 });
 
-app.get('/api/status', (req, res) => {
-    const db = getDB();
-    res.json({ bot_online: db.bot_online || false });
+app.post('/api/bot-heartbeat', (req, res) => {
+    botOnline = true;
+    res.json({ success: true });
+});
+
+app.get('/api/bot-status', (req, res) => {
+    res.json({ online: botOnline });
 });
 
 app.get('/api/user/status/:username', (req, res) => {
     const db = getDB();
     const user = db.users[req.params.username] || { status: 'freemium', blacklisted: false };
-    res.status(200).json(user);
+    res.json(user);
 });
 
 app.get('/s/:id', (req, res) => {
     const db = getDB();
     const script = db.scripts.find(s => s.id === req.params.id);
     if (!script) return res.status(404).send("Not Found");
-    res.send(`<!DOCTYPE html><html><head><title>${script.title}</title><style>body{background:#fff;color:#000;font-family:'Fira Code',monospace;padding:40px;white-space:pre-wrap;line-height:1.5;}</style></head><body>${script.content.replace(/</g, "&lt;")}</body></html>`);
+    res.send(`<!DOCTYPE html><html><head><title>${script.title}</title><style>body{background:#fff;color:#000;font-family:'Fira Code',monospace;padding:40px;white-space:pre-wrap;word-wrap:break-word;line-height:1.5;}</style></head><body>${script.content.replace(/</g, "&lt;")}</body></html>`);
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
 
-app.listen(PORT, () => console.log(`Server: ${PORT}`));
+app.listen(PORT, () => console.log(`Live: ${PORT}`));
