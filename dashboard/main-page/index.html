@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Obfus Vault</title>
-    <link rel="stylesheet" href="mainpage.css">
+    <link rel="stylesheet" href="dashboard.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="static-bg">
@@ -15,153 +15,29 @@
         <div class="layer glow-center"></div>
     </div>
 
-    <div class="layout-wrapper">
-        <aside class="side-panel">
-            <div class="top-section">
-                <div class="brand-title">OBFUS VAULT</div>
-                <nav class="nav-menu">
-                    <button class="menu-btn active" onclick="switchPage('service')">obfuscator / deobfuscator</button>
-                    <button class="menu-btn" onclick="switchPage('community')">community scripts</button>
-                    <button class="menu-btn" onclick="switchPage('yours')">your scripts</button>
-                    <button class="menu-btn">feedback</button>
-                </nav>
+    <nav>
+        <div class="nav-inner">
+            <div class="logo">OBFUS VAULT</div>
+            <div class="nav-links">
+                <a href="/" class="nav-item">Home</a>
             </div>
-            <div class="bottom-section">
-                <div class="profile-card">
-                    <span class="user-id" id="user-display">DiscordUser#0000</span>
-                    <span class="user-tag">Premium Member</span>
-                </div>
-            </div>
-        </aside>
+        </div>
+    </nav>
 
-        <main class="workspace" id="page-service">
-            <div class="ui-header">
-                <div class="header-left">
-                    <select id="main-mode">
-                        <option value="deobfuscator">Deobfuscator Mode</option>
-                        <option value="obfuscator">Obfuscator Mode</option>
-                    </select>
-                </div>
-                <div class="header-right">
-                    <div id="deob-settings" class="settings-row">
-                        <select id="deob-target">
-                            <option value="auto">Auto Detect</option>
-                            <option value="m1">Moonsec V1/V2</option>
-                            <option value="luarmor">Luarmor V4</option>
-                            <option value="js">JS Devirtualizer</option>
-                        </select>
-                        <button class="action-btn glow" id="trigger-deob">Deobfuscate</button>
-                    </div>
-                    <div id="obf-settings" class="settings-row hide">
-                        <select id="obf-mode">
-                            <option value="lua-vm">Roblox Lua VM</option>
-                            <option value="js-vm">Chrome JS VM</option>
-                        </select>
-                        <button class="action-btn glow" id="trigger-obf">Obfuscate</button>
-                    </div>
-                </div>
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <div id="auth-header">
+                <h1 id="auth-title">Sign In</h1>
+                <p id="auth-subtitle">Welcome to the secure vault dashboard.</p>
             </div>
 
-            <div class="editor-shell">
-                <div class="editor-view" id="editor-wrap">
-                    <textarea id="main-editor" spellcheck="false" placeholder="Waiting for code..."></textarea>
-                </div>
-                <div class="loader-overlay" id="work-loader">
-                    <div class="loader-content">
-                        <div class="scan-line"></div>
-                        <div class="loader-msg" id="loader-msg">READY</div>
-                        <div class="progress-box">
-                            <div class="progress-bar" id="load-fill"></div>
-                        </div>
-                        <div class="progress-num" id="load-val">0%</div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <main class="workspace hide" id="page-community">
-            <div class="community-header">
-                <h1>Community Scripts</h1>
-                <button class="action-btn" onclick="showSubmitModal()">submit script</button>
-            </div>
-            <div class="script-list" id="community-list"></div>
-        </main>
-
-        <main class="workspace hide" id="page-yours">
-            <div class="community-header">
-                <h1>Your Private Scripts</h1>
-                <button class="action-btn" onclick="showSubmitModal()">submit script</button>
-            </div>
-            <div class="script-list" id="private-list"></div>
-        </main>
-
-        <div class="side-widgets">
-            <div class="floating-terminal">
-                <div class="term-head">
-                    <span>CONSOLE OUTPUT</span>
-                    <button class="clear-btn" onclick="clearConsole()">clear</button>
-                </div>
-                <div class="term-body" id="console-output"></div>
-            </div>
-            <div class="code-puller">
-                <div class="puller-head">VAULT PULLER</div>
-                <div class="puller-body">
-                    <input type="text" id="pull-url" placeholder="URL Link...">
-                    <button id="btn-pull">Pull & Retrieve</button>
-                </div>
-            </div>
-        </aside>
-    </div>
-
-    <div class="modal-overlay hide" id="submit-modal">
-        <div class="submit-card">
-            <h2>Post New Script</h2>
-            <div class="input-stack">
-                <label>Title</label>
-                <input type="text" id="post-title" placeholder="Script Name">
-                
-                <label>Code Content</label>
-                <div class="syntax-box">
-                    <textarea id="post-content" oninput="updateSyntax()" spellcheck="false"></textarea>
-                    <div id="syntax-layer"></div>
-                </div>
-
-                <label>Public?</label>
-                <select id="post-public">
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                </select>
-                
-                <div class="check-row">
-                    <span>Password Protect?</span>
-                    <label class="switch">
-                        <input type="checkbox" id="use-pass" onclick="togglePassInput()">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="pass-box hide" id="pass-field">
-                    <div class="pass-input-row">
-                        <input type="password" id="post-pass" placeholder="Password">
-                        <button type="button" class="view-btn" onclick="togglePassView()">show</button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-btns">
-                <button class="modal-cancel" onclick="hideSubmitModal()">cancel</button>
-                <button class="modal-confirm" id="btn-post-script">post script</button>
-            </div>
+            <button id="discord-btn" class="discord-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                Login with Discord
+            </button>
         </div>
     </div>
 
-    <div class="raw-viewer hide" id="raw-viewer">
-        <div class="viewer-top">
-            <span id="viewer-title">Script</span>
-            <button onclick="closeViewer()">close</button>
-        </div>
-        <pre id="raw-code-display"></pre>
-    </div>
-
-    <script src="mainpage.js"></script>
+    <script src="dashboard.js"></script>
 </body>
 </html>
