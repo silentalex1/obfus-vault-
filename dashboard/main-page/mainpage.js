@@ -1,101 +1,107 @@
-const input = document.getElementById('code-input');
-const loader = document.getElementById('process-loader');
-const bar = document.getElementById('bar-fill');
-const barText = document.getElementById('bar-val');
-const msgLabel = document.getElementById('load-msg');
-const consoleBody = document.getElementById('log-list');
-const modeSelect = document.getElementById('mode-selector');
-const deobUi = document.getElementById('deob-ui');
-const obfUi = document.getElementById('obf-ui');
+const editor = document.getElementById('main-editor');
+const loader = document.getElementById('work-loader');
+const barFill = document.getElementById('load-fill');
+const barVal = document.getElementById('load-val');
+const barMsg = document.getElementById('loader-msg');
+const consoleBox = document.getElementById('console-output');
+const mainMode = document.getElementById('main-mode');
+const deobGroup = document.getElementById('deob-settings');
+const obfGroup = document.getElementById('obf-settings');
 
-modeSelect.addEventListener('change', () => {
-    if (modeSelect.value === 'obfuscator') {
-        deobUi.classList.add('hidden');
-        obfUi.classList.remove('hidden');
+mainMode.addEventListener('change', () => {
+    if (mainMode.value === 'obfuscator') {
+        deobGroup.classList.add('hide');
+        obfGroup.classList.remove('hide');
     } else {
-        deobUi.classList.remove('hidden');
-        obfUi.classList.add('hidden');
+        deobGroup.classList.remove('hide');
+        obfGroup.classList.add('hide');
     }
 });
 
-function addLog(text, good = false) {
+function log(text, success = false) {
     const div = document.createElement('div');
-    div.className = good ? 'log-line log-good' : 'log-line';
+    div.className = success ? 'term-line green' : 'term-line';
     div.textContent = `[vault] ${text}`;
-    consoleBody.appendChild(div);
-    consoleBody.scrollTop = consoleBody.scrollHeight;
+    consoleBox.appendChild(div);
+    consoleBox.scrollTop = consoleBox.scrollHeight;
 }
 
-function processDeob(code) {
+function advancedDeob(code) {
     let c = code;
-    c = c.replace(/\(function\(\)\s*\(\[\[This file was protected with MoonSec.*?\]\]\)\s*:gsub\(['"](.)['"],\s*function\(./g, '');
-    c = c.replace(/local e=(\d+);local o=0;local n={};while o<e do o=o+1;n\[o\]=string\.char\(./g, '');
-    c = c.replace(/local a=(\d+);local i=0;local t=\{\};while i<a do i=i+1;t\[i\]=./g, '');
-    c = c.replace(/loadstring\(.+?\(\)\)\(\)/g, m => {
-        const inner = m.match(/loadstring\((.+?)\(\)\)\(\)/);
-        return inner ? inner[1] : '';
+    // Moonsec & VM Cleanup
+    c = c.replace(/local\s+\w+=string\.char;local\s+\w+=string\.byte;.*?loadstring\(\w+\)\(\)/gs, '');
+    c = c.replace(/--\[\[.*?\]\]/gs, '');
+    c = c.replace(/string\.char\(([\d,\s]+)\)/g, (_, n) => {
+        try { return `"${String.fromCharCode(...n.split(',').map(x => parseInt(x.trim())))}"`; } catch { return _; }
     });
-    c = c.replace(/string\.char\(([^\)]+)\)/g, (_, n) => {
-        try { return `"${String.fromCharCode(parseInt(n))}"`; } catch { return _; }
+    c = c.replace(/bit32\.bxor\(([\d\w\s,]+)\)/g, (_, args) => {
+        try { const p = args.split(',').map(x => parseInt(x.trim())); return (p[0] ^ p[1]).toString(); } catch { return _; }
     });
-    c = c.replace(/bit32\.bxor\(([^,]+),\s*([^)]+)\)/g, (_, a, b) => (parseInt(a) ^ parseInt(b)).toString());
-    c = c.replace(/return loadstring\(string\.char\(table\.unpack\{([^}]+)\}\)\)\(\)/g, (_, b) => {
-        return b.split(',').map(n => String.fromCharCode(parseInt(n.trim()))).join('');
+    // JS Deob
+    c = c.replace(/atob\(['"](.*?)['"]\)/g, (_, b) => {
+        try { return `"${atob(b)}"`; } catch { return _; }
     });
-    return c;
+    return c.trim();
 }
 
-function processObf(code) {
-    const isLua = code.includes('local') || code.includes('function');
-    if (isLua) {
+function advancedObf(code, type) {
+    if (type === 'lua-vm') {
         let bytes = [];
-        for (let i = 0; i < code.length; i++) bytes.push(code.charCodeAt(i) ^ 0x2A);
-        return `local _V = {${bytes.join(',')}}; local _D = ""; for i=1,#_V do _D=_D..string.char(_V[i]~42) end; loadstring(_D)()`;
+        for (let i = 0; i < code.length; i++) bytes.push(code.charCodeAt(i) ^ 0x7F);
+        return `local _V={${bytes.join(',')}};local _S="";for i=1,#_V do _S=_S..string.char(_V[i]~127) end;loadstring(_S)()`;
     } else {
         let b = btoa(code);
-        return `(function(){ let _h = "${b}"; eval(atob(_h)); })();`;
+        return `eval(atob("${b}"));`;
     }
 }
 
-async function startWork(mode) {
-    const data = input.value.trim();
-    if (!data) return addLog("No script detected.");
+async function handleWork(mode) {
+    const content = editor.value.trim();
+    if (!content) return log("Editor is empty.");
 
     loader.style.display = 'flex';
     let p = 0;
-    const isLua = data.includes('local') || data.includes('function');
+    const isLua = content.includes('local') || content.includes('function');
     const lang = isLua ? "Lua" : "JS";
 
     const stages = mode === 'deob' ? 
-        [10, 30, 60, 85, 100] : [20, 40, 70, 90, 100];
-    
-    const messages = mode === 'deob' ?
-        [`detecting ${lang} code..`, `detected ${lang} script`, "measuring security..", "bypassing vm protection..", "success"] :
-        [`preparing ${lang} vm..`, "encrypting constants..", "generating custom vm bytecode..", "finalizing obfuscation..", "success"];
+        ["detecting code..", "analyzing vm..", "stripping protection..", "success"] :
+        ["building vm..", "encrypting..", "packing code..", "success"];
 
-    const run = setInterval(() => {
-        p++;
-        bar.style.width = `${p}%`;
-        barText.innerText = `${p}%`;
-
-        for(let i=0; i<stages.length; i++) {
-            if (p <= stages[i]) {
-                msgLabel.innerText = messages[i];
-                break;
-            }
-        }
+    const task = setInterval(() => {
+        p += 2;
+        barFill.style.width = `${p}%`;
+        barVal.innerText = `${p}%`;
+        
+        const idx = Math.floor((p / 100) * stages.length);
+        if (stages[idx]) barMsg.innerText = stages[idx];
 
         if (p >= 100) {
-            clearInterval(run);
-            input.value = mode === 'deob' ? processDeob(data) : processObf(data);
+            clearInterval(task);
+            editor.value = mode === 'deob' ? advancedDeob(content) : advancedObf(content, document.getElementById('obf-mode').value);
             
             setTimeout(() => {
                 loader.style.display = 'none';
-                addLog(mode === 'deob' ? `${lang} deobfuscated.` : `${lang} obfuscated.`, true);
+                log(`${lang} script processed.`, true);
             }, 300);
         }
-    }, 25);
+    }, 20);
 }
 
-document.getElementById('run-deob').addEventListener('click', () => startWork('deob'));
-document.getElementById('run-obf').addEventListener('click', () => startWork('obf'));
+document.getElementById('btn-pull').addEventListener('click', async () => {
+    const url = document.getElementById('pull-url').value.trim();
+    if (!url) return log("No URL provided.");
+    
+    log("Pulling script...");
+    try {
+        const res = await fetch(url);
+        const text = await res.text();
+        editor.value = text;
+        log("Code retrieved successfully.", true);
+    } catch (e) {
+        log("Failed to pull code. check link.");
+    }
+});
+
+document.getElementById('trigger-deob').addEventListener('click', () => handleWork('deob'));
+document.getElementById('trigger-obf').addEventListener('click', () => handleWork('obf'));
