@@ -1,15 +1,19 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
+const { spawn } = require('child_process');
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+app.use(cors());
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
 
 const dbPath = path.join(__dirname, 'database.json');
+let botProcess = null;
 
 const readDB = () => {
     if (!fs.existsSync(dbPath)) return [];
@@ -44,6 +48,26 @@ app.post('/api/scripts', (req, res) => {
     res.json({ success: true, id: newScript.id });
 });
 
+app.post('/api/runbot', (req, res) => {
+    const { token, botCode } = req.body;
+    
+    if (botProcess) {
+        botProcess.kill();
+    }
+
+    const tempBotPath = path.join(__dirname, 'temp_bot.js');
+    fs.writeFileSync(tempBotPath, botCode);
+
+    botProcess = spawn('node', [tempBotPath], {
+        env: { ...process.env, BOT_TOKEN: token }
+    });
+
+    botProcess.stdout.on('data', (data) => console.log(`Bot: ${data}`));
+    botProcess.stderr.on('data', (data) => console.error(`Bot Error: ${data}`));
+
+    res.json({ success: true, message: "Bot started on vault servers." });
+});
+
 app.get('/s/:id', (req, res) => {
     const scripts = readDB();
     const script = scripts.find(s => s.id === req.params.id);
@@ -52,5 +76,5 @@ app.get('/s/:id', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server active on port ${PORT}`);
 });
