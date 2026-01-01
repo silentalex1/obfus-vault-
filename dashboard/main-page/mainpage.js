@@ -8,6 +8,23 @@ const mainMode = document.getElementById('main-mode');
 const deobGroup = document.getElementById('deob-settings');
 const obfGroup = document.getElementById('obf-settings');
 
+function switchPage(pageId) {
+    document.querySelectorAll('.workspace').forEach(p => p.classList.add('hide'));
+    document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.remove('hide');
+    event.currentTarget.classList.add('active');
+    log(`Switched to ${pageId} view.`);
+}
+
+function log(text, success = false) {
+    const time = new Date().toLocaleTimeString([], { hour12: false });
+    const div = document.createElement('div');
+    div.className = success ? 'term-line green' : 'term-line';
+    div.innerHTML = `<span class="time">[${time}]</span>> ${text}`;
+    consoleBox.appendChild(div);
+    consoleBox.scrollTop = consoleBox.scrollHeight;
+}
+
 mainMode.addEventListener('change', () => {
     if (mainMode.value === 'obfuscator') {
         deobGroup.classList.add('hide');
@@ -18,107 +35,138 @@ mainMode.addEventListener('change', () => {
     }
 });
 
-function log(text, success = false) {
-    const div = document.createElement('div');
-    div.className = success ? 'term-line green' : 'term-line';
-    div.textContent = `[vault] ${text}`;
-    consoleBox.appendChild(div);
-    consoleBox.scrollTop = consoleBox.scrollHeight;
-}
-
-// Aggressive Deobfuscation Logic
-function advancedDeob(code) {
+function improvedDeob(code) {
     let c = code;
-    // Strip Moonsec/VM headers
-    c = c.replace(/local\s+\w+=string\.char;local\s+\w+=string\.byte;.*?loadstring\(\w+\)\(\)/gs, '-- [Stripped VM Header]');
+    c = c.replace(/local\s+\w+=string\.char;local\s+\w+=string\.byte;.*?loadstring\(\w+\)\(\)/gs, '-- [VM Removed]');
     c = c.replace(/--\[\[.*?\]\]/gs, '');
-    // Unpack string.char
     c = c.replace(/string\.char\(([\d,\s]+)\)/g, (_, n) => {
         try { return `"${String.fromCharCode(...n.split(',').map(x => parseInt(x.trim())))}"`; } catch { return _; }
     });
-    // Solve Math/XOR
     c = c.replace(/bit32\.bxor\(([\d\w\s,]+)\)/g, (_, args) => {
         try { const p = args.split(',').map(x => parseInt(x.trim())); return (p[0] ^ p[1]).toString(); } catch { return _; }
     });
-    // JS B64/Atob decryption
     c = c.replace(/atob\(['"](.*?)['"]\)/g, (_, b) => {
         try { return `"${atob(b)}"`; } catch { return _; }
     });
+    c = c.replace(/\\(\d{1,3})/g, (_, n) => String.fromCharCode(parseInt(n)));
     return c.trim();
 }
 
-function advancedObf(code, type) {
+function improvedObf(code, type) {
     if (type === 'lua-vm') {
+        let key = Math.floor(Math.random() * 255);
         let bytes = [];
-        for (let i = 0; i < code.length; i++) bytes.push(code.charCodeAt(i) ^ 0x9D);
-        return `local _V={${bytes.join(',')}};local _X="";for i=1,#_V do _X=_X..string.char(_V[i]~157) end;loadstring(_X)()`;
+        for (let i = 0; i < code.length; i++) bytes.push(code.charCodeAt(i) ^ key);
+        return `local _K=${key};local _B={${bytes.join(',')}};local _D="";for i=1,#_B do _D=_D..string.char(_B[i]~_K) end;loadstring(_D)()`;
     } else {
         let b = btoa(code);
-        return `(function(_0x1){eval(atob(_0x1))})("${b}");`;
+        return `(function(){eval(atob("${b}"))})();`;
     }
 }
 
 async function handleWork(mode) {
     const content = editor.value.trim();
-    if (!content) return log("Error: No code to process.");
-
+    if (!content) return log("Error: No input found.");
     loader.style.display = 'flex';
     let p = 0;
-    const isLua = content.includes('local') || content.includes('function');
-    const lang = isLua ? "LUA" : "JS";
-
     const stages = mode === 'deob' ? 
-        ["ANALYZING STRUCTURE", "BYPASSING CORE VM", "STRIPPING JUNK", "DECRYPTING CONSTANTS", "FINALIZING"] :
-        ["BUILDING VM", "ENCRYPTING BYTES", "PACKING CONSTANTS", "SUCCESS"];
+        ["FETCHING BYTES", "ANALYZING VM STRUCTURE", "STRIPPING DEEP JUNK", "DECRYPTING LAYERS", "SUCCESS"] :
+        ["BUILDING CUSTOM VM", "XOR ENCRYPTION", "VIRTUALIZING OPS", "PACKING", "SUCCESS"];
 
     const task = setInterval(() => {
         p += 2;
-        barFill.style.width = `${p}%`;
-        barVal.innerText = `${p}%`;
-        
-        const idx = Math.floor((p / 100) * stages.length);
-        if (stages[idx]) barMsg.innerText = stages[idx];
-
+        barFill.style.width = p + '%';
+        barVal.innerText = p + '%';
+        let idx = Math.min(Math.floor((p / 100) * stages.length), stages.length - 1);
+        barMsg.innerText = stages[idx];
         if (p >= 100) {
             clearInterval(task);
-            editor.value = mode === 'deob' ? advancedDeob(content) : advancedObf(content, document.getElementById('obf-mode').value);
-            
+            editor.value = mode === 'deob' ? improvedDeob(content) : improvedObf(content, document.getElementById('obf-mode').value);
             setTimeout(() => {
                 loader.style.display = 'none';
-                log(`${lang} Process completed successfully.`, true);
-            }, 400);
+                log(`${mode} process finished.`, true);
+            }, 300);
         }
-    }, 25);
+    }, 20);
 }
 
-// SCRIPT PULLER WITH CORS BYPASS
 document.getElementById('btn-pull').addEventListener('click', async () => {
     let url = document.getElementById('pull-url').value.trim();
-    if (!url) return log("Error: No URL provided.");
-    
-    // Clean raw link helpers
-    if (url.includes("github.com") && !url.includes("raw.githubusercontent.com")) {
-        url = url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
-    }
-
-    log("Pulling script from remote host...");
-    
+    if (!url) return log("Error: Empty URL.");
+    log("Requesting script data...");
     try {
-        // We use AllOrigins Proxy to bypass CORS block
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-        
-        const res = await fetch(proxyUrl);
-        if (!res.ok) throw new Error("HTTP Error");
-        
+        const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        const res = await fetch(proxy);
         const text = await res.text();
         editor.value = text;
-        log("Successfully retrieved remote code.", true);
-        log(`Extracted ${text.length} characters.`);
-    } catch (e) {
-        log("Error: Failed to pull code. Host blocked or URL invalid.");
-        log("Try using a raw link if possible.");
-    }
+        log("Data pulled from source.", true);
+    } catch (e) { log("Pull failed. Resource blocked."); }
 });
+
+const submitModal = document.getElementById('submit-modal');
+function showSubmitModal() { submitModal.classList.remove('hide'); }
+function hideSubmitModal() { submitModal.classList.add('hide'); }
+
+function togglePassInput() {
+    document.getElementById('pass-field').classList.toggle('hide');
+}
+
+function togglePassView() {
+    const el = document.getElementById('post-pass');
+    const isPass = el.type === 'password';
+    el.type = isPass ? 'text' : 'password';
+    event.currentTarget.innerText = isPass ? 'hide' : 'show';
+}
+
+let communityDB = JSON.parse(localStorage.getItem('vault_scripts') || '[]');
+function renderScripts() {
+    const area = document.getElementById('script-display-area');
+    area.innerHTML = '';
+    communityDB.forEach((s, i) => {
+        const card = document.createElement('div');
+        card.className = 'script-card';
+        card.title = "Name: " + s.title;
+        card.innerHTML = `
+            <div class="script-info">
+                <h3>${s.title}</h3>
+                <p>Link: /${s.title.toLowerCase().replace(/\s+/g, '-')}</p>
+            </div>
+            <button class="action-btn" onclick="openScript(${i})">view script</button>
+        `;
+        area.appendChild(card);
+    });
+}
+
+document.getElementById('btn-post-script').addEventListener('click', () => {
+    const title = document.getElementById('post-title').value;
+    const content = document.getElementById('post-content').value;
+    const pass = document.getElementById('post-pass').value;
+    const usePass = document.getElementById('use-pass').checked;
+
+    if (!title || !content) return alert("Fill all fields.");
+
+    communityDB.push({ title, content, pass: usePass ? pass : null });
+    localStorage.setItem('vault_scripts', JSON.stringify(communityDB));
+    hideSubmitModal();
+    renderScripts();
+    log("Script posted to community.", true);
+});
+
+function openScript(index) {
+    const s = communityDB[index];
+    if (s.pass) {
+        const p = prompt("Enter password to view this script:");
+        if (p !== s.pass) return alert("Wrong password.");
+    }
+    const viewer = document.getElementById('raw-viewer');
+    document.getElementById('viewer-title').innerText = s.title;
+    document.getElementById('raw-code-display').innerText = s.content;
+    viewer.classList.remove('hide');
+}
+
+function closeViewer() { document.getElementById('raw-viewer').classList.add('hide'); }
 
 document.getElementById('trigger-deob').addEventListener('click', () => handleWork('deob'));
 document.getElementById('trigger-obf').addEventListener('click', () => handleWork('obf'));
+renderScripts();
+log("Console ready.");
