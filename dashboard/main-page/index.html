@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Panel | Obfus Vault</title>
+    <title>Vault | Obfus Vault</title>
     <link rel="stylesheet" href="mainpage.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div id="blacklist-screen" class="hide">
+        <div class="blacklist-card">
+            <h1>Sorry our system has detected you being blacklisted. Was this a mistake?</h1>
+            <p>if you believe that this was a mistake please make a support ticket in the <a href="https://discord.gg/HVN5smcC3Z">discord server</a>.</p>
+        </div>
+    </div>
+
     <div class="static-bg">
         <div class="layer grid-pattern"></div>
         <div class="layer glow-center"></div>
@@ -36,8 +43,8 @@
             <div class="ui-header">
                 <div class="header-left">
                     <select id="main-mode">
-                        <option value="deob">Deobfuscator</option>
-                        <option value="obf">Obfuscator</option>
+                        <option value="deob">Deobfuscator Mode</option>
+                        <option value="obf">Obfuscator Mode</option>
                     </select>
                 </div>
                 <div class="header-right">
@@ -60,9 +67,9 @@
             </div>
 
             <div class="editor-shell">
-                <div class="syntax-editor">
-                    <textarea id="main-editor" spellcheck="false" oninput="updateMainSyntax()" placeholder="Paste script or use puller..."></textarea>
-                    <div id="main-syntax-layer"></div>
+                <div class="code-container">
+                    <textarea id="main-editor" spellcheck="false" oninput="syncScroll('main'); updateSyntax('main')" onscroll="syncScroll('main')" placeholder="Paste script or use puller..."></textarea>
+                    <div id="main-highlight" class="highlight-layer"></div>
                 </div>
                 <div class="loader-overlay" id="work-loader">
                     <div class="loader-content">
@@ -94,15 +101,15 @@
             <div class="floating-terminal">
                 <div class="term-head">
                     <span>CONSOLE</span>
-                    <button class="clear-btn-big" onclick="clearConsole()">clear</button>
+                    <button class="clear-btn-big" onclick="clearConsole()">CLEAR CONSOLE</button>
                 </div>
                 <div class="term-body" id="console-output"></div>
             </div>
             <div class="code-puller">
                 <div class="puller-head">VAULT PULLER</div>
                 <div class="puller-body">
-                    <input type="text" id="pull-url" placeholder="Enter URL Link...">
-                    <button id="btn-pull">Pull & Retrieve</button>
+                    <input type="text" id="pull-url" placeholder="URL Link...">
+                    <button id="btn-pull" class="pull-btn">Pull & Retrieve</button>
                 </div>
             </div>
         </div>
@@ -114,26 +121,29 @@
                 <h2>Post New Script</h2>
             </div>
             <div class="input-stack">
-                <div class="group">
-                    <label>Title</label>
+                <div class="input-group">
+                    <label>TITLE</label>
                     <input type="text" id="post-title" placeholder="Script Name">
                 </div>
-                <div class="group">
-                    <label>Code Content</label>
-                    <textarea id="post-content" spellcheck="false" placeholder="Paste your script here..."></textarea>
+                <div class="input-group">
+                    <label>CODE CONTENT</label>
+                    <div class="code-container small">
+                        <textarea id="post-content" spellcheck="false" oninput="syncScroll('post'); updateSyntax('post')" onscroll="syncScroll('post')" placeholder="Paste code..."></textarea>
+                        <div id="post-highlight" class="highlight-layer"></div>
+                    </div>
                 </div>
-                <div class="row-group">
-                    <div class="sub-group">
-                        <label>Public?</label>
+                <div class="modal-row">
+                    <div class="input-group flex-1">
+                        <label>PUBLIC?</label>
                         <select id="post-public"><option value="yes">Yes</option><option value="no">No</option></select>
                     </div>
-                    <div class="sub-group">
-                        <label>Password Protect?</label>
+                    <div class="input-group">
+                        <label>PASSWORD PROTECT?</label>
                         <label class="switch"><input type="checkbox" id="use-pass" onclick="togglePassInput()"><span class="slider"></span></label>
                     </div>
                 </div>
                 <div id="pass-field" class="hide">
-                    <input type="password" id="post-pass" placeholder="Enter viewing password">
+                    <input type="password" id="post-pass" placeholder="Enter password">
                 </div>
             </div>
             <div class="modal-btns">
