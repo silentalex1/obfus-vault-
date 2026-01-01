@@ -10,6 +10,10 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--blue); }
+
 body { background: var(--bg); color: var(--white); overflow: hidden; height: 100vh; }
 
 .static-bg { position: fixed; inset: 0; z-index: -1; }
@@ -24,8 +28,10 @@ body { background: var(--bg); color: var(--white); overflow: hidden; height: 100
 nav { padding: 2.5rem 0; }
 .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 5%; display: flex; justify-content: space-between; align-items: center; }
 .logo { font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; }
-.nav-item { text-decoration: none; color: var(--muted); font-size: 0.85rem; font-weight: 500; transition: 0.3s; }
+.nav-item { text-decoration: none; color: var(--muted); font-size: 0.85rem; font-weight: 500; padding: 0.8rem 1.4rem; position: relative; transition: 0.3s; }
 .nav-item:hover { color: var(--white); }
+.nav-item::before { content: ''; position: absolute; inset: 0; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); opacity: 0; transform: scale(0.95); transition: 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28); z-index: -1; }
+.nav-item:hover::before { opacity: 1; transform: scale(1); }
 
 .auth-wrapper { height: calc(100vh - 100px); display: flex; justify-content: center; align-items: center; padding: 0 20px; }
 .auth-container { background: var(--surface); border: 1px solid var(--line); width: 100%; max-width: 420px; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
