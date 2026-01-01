@@ -34,7 +34,16 @@ switchModeBtn.addEventListener('click', () => {
 });
 
 discordBtn.addEventListener('click', () => {
-    window.location.href = DISCORD_AUTH_URL;
+    const w = 500;
+    const h = 750;
+    const left = (window.screen.width / 2) - (w / 2);
+    const top = (window.screen.height / 2) - (h / 2);
+    
+    window.open(
+        DISCORD_AUTH_URL, 
+        "Discord Auth", 
+        `width=${w},height=${h},top=${top},left=${left},scrollbars=yes,resizable=yes`
+    );
 });
 
 authSubmit.addEventListener('click', () => {
