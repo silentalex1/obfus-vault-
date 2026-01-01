@@ -3,90 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Obfus Vault | Secure Your Scripts</title>
+    <title>Obfus Vault - Script Protection</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="background-grid"></div>
-    <div class="background-glow"></div>
-
-    <nav>
-        <div class="logo">OBFUS VAULT</div>
-        <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="#">Obfuscate</a>
-            <a href="#">Deobfuscate</a>
-            <a href="#">Scripts</a>
+    <div class="background-overlay"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">OBFUS VAULT</div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#features">Features</a>
+                <a href="#premium">Premium</a>
+            </div>
         </div>
     </nav>
 
-    <main>
-        <section class="hero">
-            <h1>Ready to protect your script for your project?</h1>
-            <p class="subtitle">Protect. Post. Secure.</p>
-        </section>
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1 class="hero-title">Ready to protect your script for your project?</h1>
+            <p class="hero-subtitle">Protect. Post. Secure.</p>
+        </div>
+    </section>
 
-        <section class="features-section">
-            <p class="section-label">Heres what obfus vault premium has got you covered.</p>
-            <div class="features-grid">
-                <div class="feature-card" data-target="obf-modal">
-                    <div class="card-tag">PROTECTION</div>
-                    <h3>Core Obfuscation</h3>
-                    <p>Click to view advanced VM features and polymorphic encryption layers.</p>
-                </div>
-                <div class="feature-card" data-target="client-modal">
-                    <div class="card-tag">SECURITY</div>
-                    <h3>Client & Miscs</h3>
-                    <p>Click to view environment spoofing and AI-resistant logic modules.</p>
-                </div>
-                <div class="feature-card" data-target="community-modal">
-                    <div class="card-tag">GLOBAL</div>
-                    <h3>Script Hosting</h3>
-                    <p>Click to view features regarding public script posting and analytics.</p>
-                </div>
+    <section class="features-section" id="features">
+        <h2 class="section-title">Heres what obfus vault premium has got you covered.</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card" data-feature="obfuscation">
+                <div class="feature-label">OBFUSCATION</div>
+                <h3 class="feature-title">Advanced Protection</h3>
+                <p class="feature-description">Industry-leading obfuscation with multi-layer encryption and VM protection.</p>
             </div>
-        </section>
 
-        <section class="cta-section">
-            <h2>Ready to buy premium?</h2>
-            <a href="https://discord.gg/HVN5smcC3Z" class="buy-button">Buy Premium here.</a>
-        </section>
-    </main>
+            <div class="feature-card" data-feature="client">
+                <div class="feature-label">CLIENT & MISCS</div>
+                <h3 class="feature-title">Client Protection</h3>
+                <p class="feature-description">Environment spoofing and advanced anti-detection mechanisms.</p>
+            </div>
 
-    <div id="modal-overlay" class="modal-overlay">
-        <div id="obf-modal" class="modal-content">
-            <h3>Obfuscation Features</h3>
-            <ul>
-                <li>[+] Strong Polymorphic VM</li>
-                <li>[+] Lua variable script rename</li>
-                <li>[+] Multi-Layer Encryption</li>
-                <li>[+] Advanced Control Flow Obfuscation</li>
-                <li>[+] Bytecode Mutation & Anti-Decompiler</li>
-                <li>[+] Anti-Leak Self-Destruction</li>
-                <li>[+] High-Intensity Mode (Max Protection)</li>
-                <li>[+] Advanced Control Flow Obfuscation</li>
-            </ul>
+            <div class="feature-card" data-feature="deobfuscation">
+                <div class="feature-label">DEOBFUSCATION</div>
+                <h3 class="feature-title">Script Analysis</h3>
+                <p class="feature-description">Advanced deobfuscation tools for script analysis and dumping.</p>
+            </div>
         </div>
+    </section>
 
-        <div id="client-modal" class="modal-content">
-            <h3>Client & Misc Features</h3>
-            <ul>
-                <li>[+] Environment Spoofing & Anti-Executor Detection</li>
-                <li>[+] AI Illusion (ANY AI's you could think of will NOT be able to deobfuscate your script)</li>
-            </ul>
-        </div>
+    <section class="premium-section" id="premium">
+        <h2 class="premium-title">Ready to buy premium?</h2>
+        <a href="https://discord.gg/HVN5smcC3Z" target="_blank" class="premium-button">Buy Premium here.</a>
+    </section>
 
-        <div id="community-modal" class="modal-content">
-            <h3>Hosting & Posting</h3>
-            <ul>
-                <li>[+] Global Script Database</li>
-                <li>[+] Encrypted Asset Delivery</li>
-                <li>[+] Real-time Execution Analytics</li>
-                <li>[+] Automatic Version Control</li>
-            </ul>
+    <div class="modal" id="featureModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
 
