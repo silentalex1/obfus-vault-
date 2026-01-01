@@ -1,20 +1,21 @@
-const parallax = document.querySelector('.parallax-wrapper');
-const overlay = document.getElementById('overlay');
-const cards = document.querySelectorAll('.card');
-const modals = document.querySelectorAll('.modal');
+const parallaxBg = document.getElementById('parallaxBg');
+const overlay = document.getElementById('mainOverlay');
+const cards = document.querySelectorAll('.premium-card');
+const modals = document.querySelectorAll('.modal-card');
 
 window.addEventListener('mousemove', (e) => {
-    if (!parallax) return;
-    const x = (e.clientX / window.innerWidth - 0.5) * 40;
-    const y = (e.clientY / window.innerHeight - 0.5) * 40;
-    parallax.style.transform = `translate(${-x}px, ${-y}px)`;
+    if (!parallaxBg) return;
+    const x = (e.clientX / window.innerWidth - 0.5) * 60;
+    const y = (e.clientY / window.innerHeight - 0.5) * 60;
+    parallaxBg.style.transform = `translate(${-x}px, ${-y}px)`;
 });
 
 if (cards.length > 0 && overlay) {
     cards.forEach(card => {
         card.addEventListener('click', (e) => {
-            const id = card.getAttribute('data-modal');
-            const target = document.getElementById(id);
+            const modalId = card.getAttribute('data-modal');
+            const target = document.getElementById(modalId);
+            
             if (target) {
                 overlay.style.display = 'flex';
                 modals.forEach(m => m.style.display = 'none');
