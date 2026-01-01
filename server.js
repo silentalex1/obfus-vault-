@@ -3,10 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+app.use(cors());
 
 const dbPath = path.join(__dirname, 'database.json');
 const getDB = () => {
@@ -25,7 +25,7 @@ app.get('/api/scripts', (req, res) => {
 
 app.post('/api/scripts', (req, res) => {
     const db = getDB();
-    const id = Math.random().toString(36).substring(2, 15);
+    const id = Math.random().toString(36).substring(2, 12);
     const script = {
         id: id,
         owner: req.body.owner || 'Guest',
@@ -49,11 +49,11 @@ app.get('/api/user/status/:username', (req, res) => {
 app.get('/s/:id', (req, res) => {
     const db = getDB();
     const script = db.scripts.find(s => s.id === req.params.id);
-    if (!script) return res.status(404).send("Script not found");
+    if (!script) return res.status(404).send("Not Found");
     res.send(`<!DOCTYPE html><html><head><title>${script.title}</title><style>body{background:#fff;color:#000;font-family:'Fira Code',monospace;padding:40px;white-space:pre-wrap;word-wrap:break-word;line-height:1.5;}</style></head><body>${script.content.replace(/</g, "&lt;")}</body></html>`);
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
 
-app.listen(PORT, () => console.log(`Backend running on ${PORT}`));
+app.listen(PORT, () => console.log(`Server: ${PORT}`));
