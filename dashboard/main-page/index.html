@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page | Obfus Vault</title>
+    <title>Dashboard | Obfus Vault</title>
     <link rel="stylesheet" href="mainpage.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,8 +21,8 @@
                 <div class="brand-title">OBFUS VAULT</div>
                 <nav class="nav-menu">
                     <button class="menu-btn active">service</button>
-                    <button class="menu-btn">scripts</button>
-                    <button class="menu-btn">suggestion</button>
+                    <button class="menu-btn">community</button>
+                    <button class="menu-btn">feedback</button>
                 </nav>
             </div>
 
@@ -36,43 +36,44 @@
 
         <main class="workspace">
             <div class="ui-header">
-                <div class="mode-selector">
+                <div class="header-left">
                     <select id="main-mode">
-                        <option value="deobfuscator">Deobfuscator Mode</option>
-                        <option value="obfuscator">Obfuscator Mode</option>
+                        <option value="deobfuscator">Deobfuscator</option>
+                        <option value="obfuscator">Obfuscator</option>
                     </select>
                 </div>
 
-                <div class="tool-settings">
+                <div class="header-right">
                     <div id="deob-settings" class="settings-row">
                         <select id="deob-target">
-                            <option value="auto">Auto Detect</option>
-                            <option value="m1">Moonsec V1</option>
-                            <option value="m2">Moonsec V2</option>
-                            <option value="js">JS Obfuscator</option>
+                            <option value="auto">Auto Detection</option>
+                            <option value="m1">Moonsec V1/V2</option>
+                            <option value="js">JS Devirtualizer</option>
                         </select>
-                        <button class="action-btn" id="trigger-deob">Deobfuscate</button>
+                        <button class="action-btn glow" id="trigger-deob">Deobfuscate</button>
                     </div>
 
                     <div id="obf-settings" class="settings-row hide">
                         <select id="obf-mode">
-                            <option value="lua-vm">Roblox Lua VM</option>
-                            <option value="js-vm">JS Obfuscator</option>
+                            <option value="lua-vm">Roblox VM</option>
+                            <option value="js-vm">Chrome JS VM</option>
                         </select>
-                        <button class="action-btn" id="trigger-obf">Obfuscate</button>
+                        <button class="action-btn glow" id="trigger-obf">Obfuscate</button>
                     </div>
                 </div>
             </div>
 
             <div class="editor-shell">
                 <div class="editor-view" id="editor-wrap">
-                    <textarea id="main-editor" spellcheck="false" placeholder="Paste code or use the puller..."></textarea>
+                    <div class="line-numbers"></div>
+                    <textarea id="main-editor" spellcheck="false" placeholder="Waiting for code input or script pull..."></textarea>
                 </div>
 
                 <div class="loader-overlay" id="work-loader">
                     <div class="loader-content">
+                        <div class="scan-line"></div>
                         <div class="spinner"></div>
-                        <div class="loader-msg" id="loader-msg">Ready</div>
+                        <div class="loader-msg" id="loader-msg">READY</div>
                         <div class="progress-box">
                             <div class="progress-bar" id="load-fill"></div>
                         </div>
@@ -82,18 +83,21 @@
             </div>
         </main>
 
-        <div class="floating-terminal">
-            <div class="term-head">SYSTEM CONSOLE</div>
-            <div class="term-body" id="console-output">
-                <div class="term-line">System online.</div>
+        <div class="side-widgets">
+            <div class="floating-terminal">
+                <div class="term-head">CONSOLE OUTPUT</div>
+                <div class="term-body" id="console-output">
+                    <div class="term-line">> System initialized.</div>
+                </div>
             </div>
-        </div>
 
-        <div class="code-puller">
-            <div class="puller-head">SCRIPT PULLER</div>
-            <div class="puller-body">
-                <input type="text" id="pull-url" placeholder="Paste GitHub or Loadstring link...">
-                <button id="btn-pull">Pull Code</button>
+            <div class="code-puller">
+                <div class="puller-head">VAULT PULLER</div>
+                <div class="puller-body">
+                    <p class="pull-hint">Paste GitHub, Pastebin, or Luarmor links</p>
+                    <input type="text" id="pull-url" placeholder="Enter URL here...">
+                    <button id="btn-pull">Pull & Retrieve</button>
+                </div>
             </div>
         </div>
     </div>
