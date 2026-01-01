@@ -20,16 +20,11 @@ const highlighter = (text) => {
     return text
         .replace(/local|function|return|then|if|end|else|elseif|while|do|for|in|nil|true|false/g, '<span class="kwd">$&</span>')
         .replace(/".*?"|'.*?'/g, '<span class="str">$&</span>')
-        .replace(/\b\d+\b/g, '<span class="num">$&</span>')
-        .replace(/[+\-*\/=<>!]/g, '<span class="op">$&</span>');
+        .replace(/\b\d+\b/g, '<span class="num">$&</span>');
 };
 
 window.updateMainSyntax = () => {
     document.getElementById('main-syntax-layer').innerHTML = highlighter(document.getElementById('main-editor').value);
-};
-
-window.updatePostSyntax = () => {
-    document.getElementById('syntax-layer').innerHTML = highlighter(document.getElementById('post-content').value);
 };
 
 function log(t, s = false) {
@@ -37,8 +32,10 @@ function log(t, s = false) {
     div.className = s ? 'green' : '';
     div.innerHTML = `<span style="color:rgba(255,255,255,0.2);margin-right:8px;">[${new Date().toLocaleTimeString()}]</span> > ${t}`;
     const c = document.getElementById('console-output');
-    c.appendChild(div);
-    c.scrollTop = c.scrollHeight;
+    if (c) {
+        c.appendChild(div);
+        c.scrollTop = c.scrollHeight;
+    }
 }
 
 const editor = document.getElementById('main-editor');
@@ -59,43 +56,33 @@ function customDeob(c) {
     return r.trim();
 }
 
-function customObf(c, t) {
-    if (t === 'vm') {
-        let k = Math.floor(Math.random() * 255);
-        let b = Array.from(c).map(x => x.charCodeAt(0) ^ k);
-        return `local _K=${k};local _V={${b.join(',')}};local _S="";for i=1,#_V do _S=_S..string.char(_V[i]~_K) end;loadstring(_S)()`;
-    }
-    return `(function(){eval(atob("${btoa(c)}"))})();`;
-}
-
 async function handleWork(m) {
     const c = editor.value.trim();
     if (!c) return log("Error: Empty buffer.");
     loader.style.display = 'flex';
     let p = 0;
-    const stages = m === 'deob' ? ["IDENTIFYING VM", "SOLVING CONSTANT POOL", "RECONSTRUCTING", "SUCCESS"] : ["VIRTUALIZING", "SHIFTING BYTES", "PACKING", "SUCCESS"];
+    const stages = m === 'deob' ? ["IDENTIFYING VM", "SOLVING CONSTANTS", "SUCCESS"] : ["VIRTUALIZING", "SHIFTING BYTES", "SUCCESS"];
     const t = setInterval(() => {
         p += 2; barFill.style.width = p + '%'; barVal.innerText = p + '%';
         barMsg.innerText = stages[Math.min(Math.floor((p/100)*stages.length), stages.length-1)];
         if (p >= 100) {
             clearInterval(t);
-            editor.value = m === 'deob' ? customDeob(c) : customObf(c, document.getElementById('obf-mode').value);
+            editor.value = m === 'deob' ? customDeob(c) : `loadstring("${btoa(c)}")()`;
             updateMainSyntax();
-            setTimeout(() => { loader.style.display = 'none'; log(`${m.toUpperCase()} process completed.`, true); }, 400);
+            setTimeout(() => { loader.style.display = 'none'; log(`${m.toUpperCase()} complete.`, true); }, 400);
         }
     }, 15);
 }
 
 document.getElementById('btn-pull').addEventListener('click', async () => {
     let u = document.getElementById('pull-url').value.trim();
-    if (!u) return log("Error: Invalid URL.");
-    log("Connecting to remote source...");
+    log("Pulling code...");
     try {
         const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`);
-        const data = await r.text();
-        editor.value = data;
+        const d = await r.text();
+        editor.value = d;
         updateMainSyntax();
-        log("Retrieval success.", true);
+        log("Retrieved successfully.", true);
     } catch(e) { log("Retrieval failed."); }
 });
 
@@ -104,15 +91,17 @@ async function renderScripts() {
     const pl = document.getElementById('private-list');
     const u = document.getElementById('user-display').innerText;
     cl.innerHTML = ''; pl.innerHTML = '';
-    const r = await fetch('/api/scripts');
-    const scripts = await r.json();
-    scripts.forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'script-card';
-        div.innerHTML = `<div class="script-info"><h3>${s.title}</h3><p>By ${s.owner}</p></div><div style="display:flex;gap:10px;"><button class="action-btn" onclick="copyLink('${s.id}')">copy link</button><button class="action-btn" onclick="window.open('/s/${s.id}','_blank')">view</button></div>`;
-        if (s.public === "yes") cl.appendChild(div);
-        else if (s.owner === u) pl.appendChild(div);
-    });
+    try {
+        const r = await fetch('/api/scripts');
+        const data = await r.json();
+        data.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'script-card';
+            div.innerHTML = `<div><h3>${s.title}</h3><p>By ${s.owner}</p></div><div style="display:flex;gap:10px;"><button class="action-btn" onclick="copyLink('${s.id}')">copy link</button><button class="action-btn" onclick="window.open('/s/${s.id}','_blank')">view</button></div>`;
+            if (s.public === "yes") cl.appendChild(div);
+            else if (s.owner === u) pl.appendChild(div);
+        });
+    } catch(e) { log("Server Sync Failed."); }
 }
 
 document.getElementById('btn-post-script').addEventListener('click', async () => {
@@ -120,18 +109,21 @@ document.getElementById('btn-post-script').addEventListener('click', async () =>
     const c = document.getElementById('post-content').value;
     const p = document.getElementById('post-public').value;
     const o = document.getElementById('user-display').innerText;
-    const pass = document.getElementById('post-pass').value;
     if (!t || !c) return;
-    await fetch('/api/scripts', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ title: t, content: c, public: p, owner: o, pass: document.getElementById('use-pass').checked ? pass : null })
-    });
-    hideSubmitModal(); renderScripts();
-    log("Server: Script data synchronized.", true);
+    try {
+        const res = await fetch('/api/scripts', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ title: t, content: c, public: p, owner: o })
+        });
+        if (res.ok) {
+            hideSubmitModal(); renderScripts();
+            log("Server: Data synchronized.", true);
+        }
+    } catch(e) { log("Error posting script."); }
 });
 
-window.copyLink = (id) => { navigator.clipboard.writeText(window.location.origin + "/s/" + id); log("Link copied to clipboard."); };
+window.copyLink = (id) => { navigator.clipboard.writeText(window.location.origin + "/s/" + id); log("Link copied."); };
 
 document.getElementById('run-deob').addEventListener('click', () => handleWork('deob'));
 document.getElementById('run-obf').addEventListener('click', () => handleWork('obf'));
@@ -140,4 +132,4 @@ document.getElementById('main-mode').addEventListener('change', (e) => {
     document.getElementById('obf-ui').classList.toggle('hide', e.target.value === 'deob');
 });
 
-window.onload = () => { renderScripts(); log("Backend connected."); };
+window.onload = () => { renderScripts(); log("Vault Connected."); };
