@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Obfus Vault</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="static-bg">
+        <div class="layer grid-pattern"></div>
+        <div class="layer glow-center"></div>
+    </div>
+
+    <nav>
+        <div class="nav-inner">
+            <div class="logo">OBFUS VAULT</div>
+            <div class="nav-links">
+                <a href="/" class="nav-item">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <div id="auth-header">
+                <h1 id="auth-title">Create Account</h1>
+                <p id="auth-subtitle">Welcome to the secure dashboard.</p>
+            </div>
+
+            <div id="error-msg" class="error-bubble"></div>
+
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter your username.">
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <div class="password-wrap">
+                    <input type="password" id="password" placeholder="Enter your password.">
+                    <button type="button" id="toggle-pass" class="show-btn">Show</button>
+                </div>
+            </div>
+
+            <button id="auth-submit" class="primary-btn">Create account.</button>
+
+            <div class="auth-toggle">
+                <span id="toggle-text">Already have an account?</span>
+                <button id="switch-mode">Login here.</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
