@@ -40,8 +40,7 @@ nav { padding: 2.5rem 0; position: relative; z-index: 100; }
 .hero-desc { font-size: 0.95rem; letter-spacing: 12px; color: var(--muted); text-transform: uppercase; font-weight: 500; }
 
 .visual-indicator { margin-top: 5rem; display: flex; flex-direction: column; align-items: center; }
-.indicator-line { width: 1px; height: 80px; background: linear-gradient(to bottom, var(--blue), transparent); box-shadow: 0 0 15px var(--blue); }
-.stem { width: 1px; height: 80px; background: linear-gradient(to bottom, var(--blue), transparent); }
+.stem { width: 1px; height: 80px; background: linear-gradient(to bottom, var(--blue), transparent); box-shadow: 0 0 15px var(--blue); }
 .arrow-head { width: 10px; height: 10px; border-right: 1px solid var(--blue); border-bottom: 1px solid var(--blue); transform: rotate(45deg); margin-top: -5px; }
 
 .features { padding: 10rem 0; }
