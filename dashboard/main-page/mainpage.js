@@ -1,32 +1,32 @@
-const editor = document.getElementById('editor-input');
-const loader = document.getElementById('work-loader');
-const bar = document.getElementById('progress-bar');
-const barText = document.getElementById('progress-val');
-const status = document.getElementById('status-label');
-const logs = document.getElementById('log-output');
+const input = document.getElementById('code-input');
+const loader = document.getElementById('process-loader');
+const bar = document.getElementById('bar-fill');
+const barText = document.getElementById('bar-val');
+const msgLabel = document.getElementById('load-msg');
+const consoleBody = document.getElementById('log-list');
 const modeSelect = document.getElementById('mode-selector');
-const deobGroup = document.getElementById('deob-options');
-const obfGroup = document.getElementById('obf-options');
+const deobUi = document.getElementById('deob-ui');
+const obfUi = document.getElementById('obf-ui');
 
 modeSelect.addEventListener('change', () => {
     if (modeSelect.value === 'obfuscator') {
-        deobGroup.classList.add('hidden');
-        obfGroup.classList.remove('hidden');
+        deobUi.classList.add('hidden');
+        obfUi.classList.remove('hidden');
     } else {
-        deobGroup.classList.remove('hidden');
-        obfGroup.classList.add('hidden');
+        deobUi.classList.remove('hidden');
+        obfUi.classList.add('hidden');
     }
 });
 
-function writeLog(msg, success = false) {
+function addLog(text, good = false) {
     const div = document.createElement('div');
-    div.className = success ? 'log-entry log-success' : 'log-entry';
-    div.textContent = `> ${msg}`;
-    logs.appendChild(div);
-    logs.scrollTop = logs.scrollHeight;
+    div.className = good ? 'log-line log-good' : 'log-line';
+    div.textContent = `[vault] ${text}`;
+    consoleBody.appendChild(div);
+    consoleBody.scrollTop = consoleBody.scrollHeight;
 }
 
-function deobfuscate(code) {
+function processDeob(code) {
     let c = code;
     c = c.replace(/\(function\(\)\s*\(\[\[This file was protected with MoonSec.*?\]\]\)\s*:gsub\(['"](.)['"],\s*function\(./g, '');
     c = c.replace(/local e=(\d+);local o=0;local n={};while o<e do o=o+1;n\[o\]=string\.char\(./g, '');
@@ -45,59 +45,57 @@ function deobfuscate(code) {
     return c;
 }
 
-function obfuscate(code) {
+function processObf(code) {
     const isLua = code.includes('local') || code.includes('function');
     if (isLua) {
         let bytes = [];
-        for (let i = 0; i < code.length; i++) bytes.push(code.charCodeAt(i) ^ 0x55);
-        return `local _VM = {${bytes.join(',')}}; local _S = ""; for i=1,#_VM do _S=_S..string.char(_VM[i]~85) end; loadstring(_S)()`;
+        for (let i = 0; i < code.length; i++) bytes.push(code.charCodeAt(i) ^ 0x2A);
+        return `local _V = {${bytes.join(',')}}; local _D = ""; for i=1,#_V do _D=_D..string.char(_V[i]~42) end; loadstring(_D)()`;
     } else {
-        let encoded = btoa(code);
-        return `(function(){ let _0x = "${encoded}"; eval(atob(_0x)); })();`;
+        let b = btoa(code);
+        return `(function(){ let _h = "${b}"; eval(atob(_h)); })();`;
     }
 }
 
-async function startProcess(mode) {
-    const input = editor.value.trim();
-    if (!input) return writeLog("Editor is empty.");
+async function startWork(mode) {
+    const data = input.value.trim();
+    if (!data) return addLog("No script detected.");
 
     loader.style.display = 'flex';
     let p = 0;
-    const isLua = input.includes('local') || input.includes('function');
+    const isLua = data.includes('local') || data.includes('function');
     const lang = isLua ? "Lua" : "JS";
 
-    const steps = mode === 'deobfuscate' ? 
-        [15, 35, 60, 85, 100] : [20, 45, 70, 90, 100];
+    const stages = mode === 'deob' ? 
+        [10, 30, 60, 85, 100] : [20, 40, 70, 90, 100];
     
-    const msgs = mode === 'deobfuscate' ?
+    const messages = mode === 'deob' ?
         [`detecting ${lang} code..`, `detected ${lang} script`, "measuring security..", "bypassing vm protection..", "success"] :
         [`preparing ${lang} vm..`, "encrypting constants..", "generating custom vm bytecode..", "finalizing obfuscation..", "success"];
 
-    const timer = setInterval(() => {
+    const run = setInterval(() => {
         p++;
         bar.style.width = `${p}%`;
         barText.innerText = `${p}%`;
 
-        for(let i=0; i<steps.length; i++) {
-            if (p <= steps[i]) {
-                status.innerText = msgs[i];
+        for(let i=0; i<stages.length; i++) {
+            if (p <= stages[i]) {
+                msgLabel.innerText = messages[i];
                 break;
             }
         }
 
         if (p >= 100) {
-            clearInterval(timer);
-            const result = mode === 'deobfuscate' ? deobfuscate(input) : obfuscate(input);
-            editor.value = result;
+            clearInterval(run);
+            input.value = mode === 'deob' ? processDeob(data) : processObf(data);
             
             setTimeout(() => {
                 loader.style.display = 'none';
-                const final = mode === 'deobfuscate' ? `${lang} script deobfuscated.` : `${lang} script obfuscated.`;
-                writeLog(final, true);
-            }, 400);
+                addLog(mode === 'deob' ? `${lang} deobfuscated.` : `${lang} obfuscated.`, true);
+            }, 300);
         }
-    }, 30);
+    }, 25);
 }
 
-document.getElementById('run-deob').addEventListener('click', () => startProcess('deobfuscate'));
-document.getElementById('run-obf').addEventListener('click', () => startProcess('obfuscate'));
+document.getElementById('run-deob').addEventListener('click', () => startWork('deob'));
+document.getElementById('run-obf').addEventListener('click', () => startWork('obf'));
