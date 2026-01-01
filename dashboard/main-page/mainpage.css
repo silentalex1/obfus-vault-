@@ -1,63 +1,68 @@
 :root {
-    --bg: #040508;
-    --side: #080a0f;
-    --card: #0d0f17;
+    --bg: #030406;
+    --side: #06080c;
+    --card: #0a0c14;
     --blue: #3b82f6;
     --green: #10b981;
-    --border: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.05);
     --text: #ffffff;
     --muted: rgba(255, 255, 255, 0.4);
+    --vs: #0d0f14;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
-body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+body { background: var(--bg); color: var(--text); height: 100vh; width: 100vw; overflow: hidden; }
 
 .static-bg { position: fixed; inset: 0; z-index: -1; }
 .grid-pattern {
     background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(circle at center, black 30%, transparent 90%);
 }
-.glow-center { background: radial-gradient(circle at center, rgba(59, 130, 246, 0.02) 0%, transparent 70%); }
+.glow-center { background: radial-gradient(circle at center, rgba(59, 130, 246, 0.02) 0%, transparent 80%); }
 
-.main-layout { display: flex; height: 100vh; }
+.page-container { display: flex; height: 100vh; width: 100vw; }
 
-.sidebar { width: 240px; background: var(--side); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 2rem 1.5rem; }
-.brand { font-weight: 900; font-size: 1rem; letter-spacing: 2px; color: var(--blue); margin-bottom: 3rem; }
-.nav-list { display: flex; flex-direction: column; gap: 0.5rem; }
-.nav-link { background: none; border: none; color: var(--muted); padding: 0.8rem 1rem; text-align: left; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.8rem; font-weight: 600; }
+.side-panel { width: 220px; background: var(--side); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem; flex-shrink: 0; }
+.brand-name { font-weight: 900; font-size: 0.9rem; letter-spacing: 2px; color: var(--blue); margin-bottom: 2.5rem; padding-left: 0.5rem; }
+.nav-links { display: flex; flex-direction: column; gap: 0.4rem; }
+.nav-link { background: none; border: none; color: var(--muted); padding: 0.7rem 1rem; text-align: left; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.75rem; font-weight: 600; }
 .nav-link:hover { color: var(--text); background: rgba(255, 255, 255, 0.02); }
-.nav-link.active { color: var(--blue); background: rgba(59, 130, 246, 0.08); }
+.nav-link.active { color: var(--blue); background: rgba(59, 130, 246, 0.06); }
 
-.sidebar-bottom { margin-top: auto; }
-.user-box { background: var(--card); border: 1px solid var(--border); padding: 1rem; border-radius: 10px; }
-.user-name { display: block; font-weight: 700; font-size: 0.8rem; }
-.user-rank { display: block; font-size: 0.65rem; color: var(--blue); font-weight: 800; text-transform: uppercase; margin-top: 3px; }
+.panel-bottom { margin-top: auto; }
+.user-profile { background: var(--card); border: 1px solid var(--border); padding: 0.8rem; border-radius: 10px; }
+.user-tag { display: block; font-weight: 700; font-size: 0.75rem; color: var(--text); }
+.user-role { display: block; font-size: 0.6rem; color: var(--blue); font-weight: 800; text-transform: uppercase; margin-top: 2px; }
 
-.workspace { flex: 1; display: flex; flex-direction: column; padding: 2rem; position: relative; }
+.work-area { flex: 1; display: flex; flex-direction: column; padding: 1.5rem; position: relative; overflow: hidden; }
 
-.header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; background: var(--card); padding: 0.8rem 1.5rem; border-radius: 12px; border: 1px solid var(--border); }
-.option-group { display: flex; gap: 1rem; align-items: center; }
+.action-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: var(--card); padding: 0.7rem 1.2rem; border-radius: 12px; border: 1px solid var(--border); }
+.control-row { display: flex; gap: 0.8rem; align-items: center; }
 .hidden { display: none; }
 
-select { background: #161922; color: #fff; border: 1px solid var(--border); padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; outline: none; cursor: pointer; }
-.exec-btn { background: var(--blue); border: none; color: #fff; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+select { background: #12151c; color: #fff; border: 1px solid var(--border); padding: 0.5rem 0.8rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; outline: none; cursor: pointer; transition: 0.2s; }
+select:hover { border-color: var(--blue); }
+.run-btn { background: var(--blue); border: none; color: #fff; padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.75rem; transition: 0.2s; }
+.run-btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
 
-.editor-area { flex: 1; background: #0b0d12; border: 1px solid var(--border); border-radius: 12px; position: relative; overflow: hidden; }
-#editor-input { width: 100%; height: 100%; background: transparent; border: none; outline: none; color: #cbd5e1; padding: 2rem; font-family: 'Fira Code', monospace; font-size: 0.85rem; resize: none; line-height: 1.6; }
+.middle-section { flex: 1; display: flex; gap: 1rem; overflow: hidden; }
 
-.overlay { position: absolute; inset: 0; background: rgba(4, 5, 8, 0.8); display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); z-index: 50; }
-.loader-box { text-align: center; width: 280px; }
-.ring { width: 30px; height: 30px; border: 2px solid rgba(59, 130, 246, 0.1); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto 1rem; }
-.status-text { font-weight: 700; font-size: 0.85rem; margin-bottom: 1rem; }
-.bar-container { height: 4px; width: 100%; background: rgba(255, 255, 255, 0.05); border-radius: 10px; overflow: hidden; }
-.bar-fill { height: 100%; width: 0%; background: var(--blue); transition: 0.1s; }
-.bar-percent { font-size: 0.7rem; font-weight: 800; color: var(--muted); margin-top: 0.5rem; }
+.editor-box { flex: 3; background: var(--vs); border: 1px solid var(--border); border-radius: 12px; position: relative; overflow: hidden; }
+#code-input { width: 100%; height: 100%; background: transparent; border: none; outline: none; color: #cbd5e1; padding: 1.5rem; font-family: 'Fira Code', monospace; font-size: 0.8rem; resize: none; line-height: 1.6; }
 
-.terminal { position: absolute; bottom: 2rem; right: 2rem; width: 340px; background: #000; border: 1px solid var(--border); border-radius: 10px; z-index: 60; font-family: 'Fira Code', monospace; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-.terminal-header { background: #0a0c10; padding: 8px 12px; font-size: 0.6rem; font-weight: 800; color: var(--muted); border-bottom: 1px solid var(--border); }
-.terminal-body { padding: 12px; height: 100px; font-size: 0.7rem; overflow-y: auto; color: #94a3b8; }
+.console-box { flex: 1; background: #000; border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+.console-head { background: #080a0f; padding: 8px 12px; font-size: 0.6rem; font-weight: 800; color: var(--muted); border-bottom: 1px solid var(--border); }
+.console-body { padding: 12px; flex: 1; font-family: 'Fira Code', monospace; font-size: 0.7rem; overflow-y: auto; color: #94a3b8; line-height: 1.4; }
 
-.log-success { color: var(--green) !important; font-weight: 700; }
+.loading-ui { position: absolute; inset: 0; background: rgba(3, 4, 6, 0.75); display: none; align-items: center; justify-content: center; backdrop-filter: blur(12px); z-index: 100; }
+.loader-wrap { text-align: center; width: 260px; }
+.spin-circle { width: 28px; height: 28px; border: 2px solid rgba(59, 130, 246, 0.1); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto 1rem; }
+.load-msg { font-weight: 700; font-size: 0.8rem; margin-bottom: 0.8rem; }
+.bar-outer { height: 3px; width: 100%; background: rgba(255, 255, 255, 0.04); border-radius: 5px; overflow: hidden; }
+.bar-inner { height: 100%; width: 0%; background: var(--blue); transition: 0.1s; box-shadow: 0 0 10px var(--blue); }
+.bar-text { font-size: 0.65rem; font-weight: 800; color: var(--muted); margin-top: 0.4rem; }
+
+.log-good { color: var(--green) !important; font-weight: 700; }
 @keyframes spin { to { transform: rotate(360deg); } }
