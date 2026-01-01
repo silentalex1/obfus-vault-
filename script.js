@@ -1,24 +1,29 @@
-const overlay = document.getElementById('globalOverlay');
-const cards = document.querySelectorAll('.premium-card');
-const modals = document.querySelectorAll('.modal-ui');
+const parallax = document.querySelector('.parallax-wrapper');
+const overlay = document.getElementById('overlay');
+const cards = document.querySelectorAll('.card');
+const modals = document.querySelectorAll('.modal');
+
+window.addEventListener('mousemove', (e) => {
+    if (!parallax) return;
+    const x = (e.clientX / window.innerWidth - 0.5) * 40;
+    const y = (e.clientY / window.innerHeight - 0.5) * 40;
+    parallax.style.transform = `translate(${-x}px, ${-y}px)`;
+});
 
 if (cards.length > 0 && overlay) {
     cards.forEach(card => {
         card.addEventListener('click', (e) => {
-            const modalId = card.getAttribute('data-open');
-            const targetModal = document.getElementById(modalId);
-            
-            if (targetModal) {
+            const id = card.getAttribute('data-modal');
+            const target = document.getElementById(id);
+            if (target) {
                 overlay.style.display = 'flex';
                 modals.forEach(m => m.style.display = 'none');
-                targetModal.style.display = 'block';
+                target.style.display = 'block';
             }
             e.stopPropagation();
         });
     });
-}
 
-if (overlay) {
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             overlay.style.display = 'none';
