@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page | Obfus Vault</title>
+    <title>Dashboard | Obfus Vault</title>
     <link rel="stylesheet" href="mainpage.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,44 +17,44 @@
 
     <div class="main-layout">
         <aside class="sidebar">
-            <div class="sidebar-brand">OBFUS VAULT</div>
+            <div class="sidebar-header">
+                <div class="brand-logo">OBFUS VAULT</div>
+            </div>
             
             <nav class="sidebar-nav">
-                <button class="nav-btn active" id="btn-obfus">
-                    <span class="icon">⚡</span> our obfuscator service
-                </button>
-                <button class="nav-btn">
-                    <span class="icon">📜</span> community scripts
-                </button>
-                <button class="nav-btn">
-                    <span class="icon">💡</span> website suggestion
-                </button>
+                <button class="nav-btn active" id="btn-service">our obfuscator service</button>
+                <button class="nav-btn">community scripts</button>
+                <button class="nav-btn">website suggestion</button>
             </nav>
 
-            <div class="user-profile">
-                <div class="user-info">
-                    <span class="user-name">DiscordUser#0000</span>
-                    <span class="user-role">Premium Member</span>
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-details">
+                        <span class="username" id="display-username">DiscordUser#0000</span>
+                        <span class="user-role" id="display-role">Premium Member</span>
+                    </div>
                 </div>
             </div>
         </aside>
 
-        <main class="service-ui">
-            <div class="console-box" id="console">
-                <div class="console-header">SYSTEM CONSOLE</div>
-                <div class="console-body" id="console-logs">
-                    <div class="log-row">System ready...</div>
+        <section class="workspace">
+            <div class="console-wrapper">
+                <div class="console-head">
+                    <span>SYSTEM CONSOLE</span>
+                </div>
+                <div class="console-output" id="console-logs">
+                    <div class="line">System ready for input.</div>
                 </div>
             </div>
 
-            <div class="top-bar">
-                <div class="action-group">
-                    <button class="tool-btn" id="obf-btn">obfuscate script</button>
-                    <button class="tool-btn highlight" id="deob-btn">deobfuscate script</button>
+            <div class="control-center">
+                <div class="action-bar">
+                    <button class="btn-action" id="obf-btn">obfuscate script</button>
+                    <button class="btn-action primary" id="deob-btn">deobfuscate script</button>
                 </div>
                 
-                <div class="select-wrapper">
-                    <select id="vm-type">
+                <div class="select-container">
+                    <select id="lang-select">
                         <option value="auto">Auto Detection</option>
                         <option value="m1">Moonsec V1</option>
                         <option value="m2">Moonsec V2</option>
@@ -63,23 +63,23 @@
                 </div>
             </div>
 
-            <div class="editor-container">
-                <div class="editor-wrapper" id="editor-wrap">
+            <div class="editor-frame">
+                <div class="editor-inner" id="editor-ui">
                     <textarea id="code-input" spellcheck="false" placeholder="Paste your code here..."></textarea>
                 </div>
 
-                <div class="loading-overlay" id="loader">
-                    <div class="loader-content">
-                        <div class="spinner"></div>
-                        <div class="loader-text" id="loader-msg">analyzing script...</div>
-                        <div class="progress-container">
-                            <div class="progress-bar" id="progress-fill"></div>
+                <div class="process-overlay" id="process-loader">
+                    <div class="process-box">
+                        <div class="spinner-ring"></div>
+                        <div class="status-label" id="status-msg">Analyzing script...</div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="bar-fill"></div>
                         </div>
-                        <div class="progress-percent" id="progress-text">0%</div>
+                        <div class="percentage" id="percent-val">0%</div>
                     </div>
                 </div>
             </div>
-        </main>
+        </section>
     </div>
 
     <script src="mainpage.js"></script>
