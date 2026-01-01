@@ -9,14 +9,16 @@ app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
 const dbPath = path.join(__dirname, 'database.json');
+
 const getDB = () => {
     if (!fs.existsSync(dbPath)) {
-        const init = { scripts: [], users: {} };
+        const init = { scripts: [], users: {}, bot_online: false };
         fs.writeFileSync(dbPath, JSON.stringify(init));
         return init;
     }
     return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
 };
+
 const saveDB = (db) => fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
 
 app.get('/api/scripts', (req, res) => {
@@ -25,9 +27,9 @@ app.get('/api/scripts', (req, res) => {
 
 app.post('/api/scripts', (req, res) => {
     const db = getDB();
-    const id = Math.random().toString(36).substring(2, 12);
+    const id = Math.random().toString(36).substring(2, 10);
     const script = {
-        id: id,
+        id,
         owner: req.body.owner || 'Guest',
         title: req.body.title || 'Untitled',
         content: req.body.content,
@@ -37,7 +39,12 @@ app.post('/api/scripts', (req, res) => {
     };
     db.scripts.push(script);
     saveDB(db);
-    res.status(200).json({ success: true, id: id });
+    res.status(200).json({ success: true, id });
+});
+
+app.get('/api/status', (req, res) => {
+    const db = getDB();
+    res.json({ bot_online: db.bot_online || false });
 });
 
 app.get('/api/user/status/:username', (req, res) => {
@@ -50,7 +57,7 @@ app.get('/s/:id', (req, res) => {
     const db = getDB();
     const script = db.scripts.find(s => s.id === req.params.id);
     if (!script) return res.status(404).send("Not Found");
-    res.send(`<!DOCTYPE html><html><head><title>${script.title}</title><style>body{background:#fff;color:#000;font-family:'Fira Code',monospace;padding:40px;white-space:pre-wrap;word-wrap:break-word;line-height:1.5;}</style></head><body>${script.content.replace(/</g, "&lt;")}</body></html>`);
+    res.send(`<!DOCTYPE html><html><head><title>${script.title}</title><style>body{background:#fff;color:#000;font-family:'Fira Code',monospace;padding:40px;white-space:pre-wrap;line-height:1.5;}</style></head><body>${script.content.replace(/</g, "&lt;")}</body></html>`);
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
