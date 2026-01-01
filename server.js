@@ -5,24 +5,38 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
-app.use(express.static('public'));
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
 
 const dbPath = path.join(__dirname, 'database.json');
 
 const readDB = () => {
     if (!fs.existsSync(dbPath)) return [];
-    return JSON.parse(fs.readFileSync(dbPath));
+    try {
+        return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+    } catch (e) {
+        return [];
+    }
 };
 
 const writeDB = (data) => {
     fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 };
 
+app.get('/api/scripts', (req, res) => {
+    res.json(readDB());
+});
+
 app.post('/api/scripts', (req, res) => {
     const scripts = readDB();
     const newScript = {
         id: req.body.title.toLowerCase().replace(/\s+/g, '-') + '-' + Math.floor(Math.random() * 9999),
-        ...req.body,
+        owner: req.body.owner || 'Guest',
+        title: req.body.title,
+        content: req.body.content,
+        public: req.body.public,
+        pass: req.body.pass,
         date: new Date().toISOString()
     };
     scripts.push(newScript);
@@ -30,30 +44,13 @@ app.post('/api/scripts', (req, res) => {
     res.json({ success: true, id: newScript.id });
 });
 
-app.get('/api/scripts', (req, res) => {
-    const scripts = readDB();
-    res.json(scripts.filter(s => s.public === true));
-});
-
 app.get('/s/:id', (req, res) => {
     const scripts = readDB();
     const script = scripts.find(s => s.id === req.params.id);
-
     if (!script) return res.status(404).send("Script not found.");
-
-    res.send(`
-        <html>
-            <head>
-                <title>${script.title}</title>
-                <style>
-                    body { margin: 20px; font-family: 'Fira Code', monospace; background: #fff; color: #000; white-space: pre-wrap; word-wrap: break-word; }
-                </style>
-            </head>
-            <body>${script.content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</body>
-        </html>
-    `);
+    res.send(`<html><body style="background:#fff;color:#000;font-family:monospace;white-space:pre-wrap;padding:20px;">${script.content.replace(/</g, "&lt;")}</body></html>`);
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });
