@@ -17,25 +17,14 @@ window.hideSubmitModal = () => document.getElementById('submit-modal').classList
 window.togglePassInput = () => document.getElementById('pass-field').classList.toggle('hide');
 
 const highlighter = (text) => {
-    const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return escaped
-        .replace(/\b(local|function|return|then|if|end|else|elseif|while|do|for|in|nil|true|false)\b/g, '<span class="kwd">$1</span>')
+    return text
+        .replace(/local|function|return|then|if|end|else|elseif|while|do|for|in|nil|true|false/g, '<span class="kwd">$&</span>')
         .replace(/".*?"|'.*?'/g, '<span class="str">$&</span>')
-        .replace(/\b(\d+)\b/g, '<span class="num">$1</span>')
-        .replace(/\b(print|warn|error|getgenv|getfenv|setmetatable|getmetatable|loadstring|pcall)\b/g, '<span class="fn">$1</span>');
+        .replace(/\b\d+\b/g, '<span class="num">$&</span>');
 };
 
-window.updateSyntax = (type) => {
-    const area = type === 'main' ? document.getElementById('main-editor') : document.getElementById('post-content');
-    const layer = type === 'main' ? document.getElementById('main-highlight') : document.getElementById('post-highlight');
-    layer.innerHTML = highlighter(area.value) + "\n";
-};
-
-window.syncScroll = (type) => {
-    const area = type === 'main' ? document.getElementById('main-editor') : document.getElementById('post-content');
-    const layer = type === 'main' ? document.getElementById('main-highlight') : document.getElementById('post-highlight');
-    layer.scrollTop = area.scrollTop;
-    layer.scrollLeft = area.scrollLeft;
+window.updateMainSyntax = () => {
+    document.getElementById('main-syntax-layer').innerHTML = highlighter(document.getElementById('main-editor').value);
 };
 
 function log(t, s = false) {
@@ -46,13 +35,7 @@ function log(t, s = false) {
     if(c){ c.appendChild(div); c.scrollTop = c.scrollHeight; }
 }
 
-const editor = document.getElementById('main-editor');
-const loader = document.getElementById('work-loader');
-const barFill = document.getElementById('load-fill');
-const barVal = document.getElementById('load-val');
-const barMsg = document.getElementById('loader-msg');
-
-function customDeob(c) {
+function runDeob(c) {
     let r = c;
     r = r.replace(/string\.char\(([\d,\s]+)\)/g, (_, n) => {
         try { return `"${String.fromCharCode(...n.split(',').map(x => parseInt(x.trim())))}"`; } catch { return _; }
@@ -65,33 +48,35 @@ function customDeob(c) {
 }
 
 async function handleWork(m) {
-    const c = editor.value.trim();
+    const c = document.getElementById('main-editor').value.trim();
     if (!c) return log("Error: Empty buffer.");
+    const loader = document.getElementById('work-loader');
     loader.style.display = 'flex';
     let p = 0;
-    const stages = m === 'deob' ? ["VIRTUALIZING", "IDENTIFYING VM", "SUCCESS"] : ["CRYPTING", "VM PACKING", "SUCCESS"];
+    const stages = ["INITIALIZING VM", "DECRYPTING", "CLEANING", "SUCCESS"];
     const t = setInterval(() => {
-        p += 1; barFill.style.width = p + '%'; barVal.innerText = p + '%';
-        barMsg.innerText = stages[Math.min(Math.floor((p/100)*stages.length), stages.length-1)];
+        p += 2;
+        document.getElementById('load-fill').style.width = p + '%';
+        document.getElementById('load-val').innerText = p + '%';
+        document.getElementById('loader-msg').innerText = stages[Math.min(Math.floor((p/100)*stages.length), stages.length-1)];
         if (p >= 100) {
             clearInterval(t);
-            editor.value = m === 'deob' ? customDeob(c) : `loadstring("${btoa(c)}")()`;
-            updateSyntax('main');
-            setTimeout(() => { loader.style.display = 'none'; log(`${m.toUpperCase()} process complete.`, true); }, 500);
+            document.getElementById('main-editor').value = m === 'deob' ? runDeob(c) : `loadstring("${btoa(c)}")()`;
+            updateMainSyntax();
+            setTimeout(() => { loader.style.display = 'none'; log(`${m.toUpperCase()} complete.`, true); }, 400);
         }
     }, 20);
 }
 
 document.getElementById('btn-pull').addEventListener('click', async () => {
     let u = document.getElementById('pull-url').value.trim();
-    if (!u) return;
-    log("Requesting script source...");
+    log("Pulling code...");
     try {
         const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`);
         const d = await r.text();
-        editor.value = d;
-        updateSyntax('main');
-        log("Code retrieved successfully.", true);
+        document.getElementById('main-editor').value = d;
+        updateMainSyntax();
+        log("Retrieved successfully.", true);
     } catch(e) { log("Retrieval failed."); }
 });
 
@@ -120,12 +105,18 @@ document.getElementById('btn-post-script').addEventListener('click', async () =>
     const res = await fetch('/api/scripts', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ title: t, content: c, public: p, owner: o, pass: document.getElementById('use-pass').checked ? document.getElementById('post-pass').value : null })
+        body: JSON.stringify({ title: t, content: c, public: p, owner: o })
     });
-    if (res.ok) { hideSubmitModal(); renderScripts(); log("Server: Script data synchronized.", true); }
+    if (res.ok) { hideSubmitModal(); renderScripts(); log("Server: Data synchronized.", true); }
 });
 
 window.copyLink = (id) => { navigator.clipboard.writeText(window.location.origin + "/s/" + id); log("Link copied."); };
+
+async function checkBot() {
+    const r = await fetch('/api/bot-status');
+    const d = await r.json();
+    if (d.online) log("discord bot has connected to the website Sucessfully!", true);
+}
 
 document.getElementById('run-deob').addEventListener('click', () => handleWork('deob'));
 document.getElementById('run-obf').addEventListener('click', () => handleWork('obf'));
@@ -134,10 +125,4 @@ document.getElementById('main-mode').addEventListener('change', (e) => {
     document.getElementById('obf-ui').classList.toggle('hide', e.target.value === 'deob');
 });
 
-window.onload = async () => {
-    renderScripts(); 
-    log("Backend connected.");
-    const statusRes = await fetch('/api/status');
-    const statusData = await statusRes.json();
-    if (statusData.bot_online) log("discord bot has connected to the website Sucessfully!", true);
-};
+window.onload = () => { renderScripts(); checkBot(); };
