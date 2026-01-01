@@ -2,12 +2,18 @@ const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
 const togglePassBtn = document.getElementById('toggle-pass');
 const authSubmit = document.getElementById('auth-submit');
+const discordBtn = document.getElementById('discord-btn');
 const errorMsg = document.getElementById('error-msg');
 const switchModeBtn = document.getElementById('switch-mode');
 const authTitle = document.getElementById('auth-title');
 const toggleText = document.getElementById('toggle-text');
 
 let isLoginMode = false;
+
+const CLIENT_ID = "1456100190300930154";
+const REDIRECT_URI = encodeURIComponent("https://obfusvault.xyz/dashboard/main-page");
+const SCOPES = "identify";
+const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPES}`;
 
 const getUsers = () => JSON.parse(localStorage.getItem('obfus_vault_accounts') || '[]');
 const saveUsers = (users) => localStorage.setItem('obfus_vault_accounts', JSON.stringify(users));
@@ -25,6 +31,10 @@ switchModeBtn.addEventListener('click', () => {
     toggleText.textContent = isLoginMode ? "Don't have an account?" : "Already have an account?";
     switchModeBtn.textContent = isLoginMode ? "Create one here." : "Login here.";
     errorMsg.style.display = 'none';
+});
+
+discordBtn.addEventListener('click', () => {
+    window.location.href = DISCORD_AUTH_URL;
 });
 
 authSubmit.addEventListener('click', () => {
@@ -49,7 +59,7 @@ authSubmit.addEventListener('click', () => {
     if (isLoginMode) {
         const found = users.find(u => u.username === user && u.password === pass);
         if (found) {
-            alert('Welcome back, ' + user + '!');
+            window.location.href = '/dashboard/main-page';
         } else {
             errorMsg.textContent = 'Invalid username or password.';
             errorMsg.style.display = 'block';
@@ -62,7 +72,6 @@ authSubmit.addEventListener('click', () => {
         } else {
             users.push({ username: user, password: pass });
             saveUsers(users);
-            alert('Account created successfully!');
             switchModeBtn.click();
         }
     }
