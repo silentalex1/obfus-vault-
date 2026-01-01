@@ -8,14 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="blacklist-screen" class="hide">
-        <div class="blacklist-card">
-            <h1>Sorry our system has detected you being blacklisted. Was this a mistake?</h1>
-            <p>if you believe that this was a mistake please make a support ticket in the <a href="https://discord.gg/HVN5smcC3Z">discord server</a>.</p>
-        </div>
+    <div class="static-bg">
+        <div class="layer grid-pattern"></div>
+        <div class="layer glow-center"></div>
     </div>
-
-    <div class="static-bg"><div class="layer grid-pattern"></div><div class="layer glow-center"></div></div>
 
     <div class="layout-wrapper">
         <aside class="side-panel">
@@ -98,7 +94,7 @@
             <div class="floating-terminal">
                 <div class="term-head">
                     <span>CONSOLE</span>
-                    <button class="clear-btn-big" onclick="clearConsole()">CLEAR CONSOLE</button>
+                    <button class="clear-btn-big" onclick="clearConsole()">clear</button>
                 </div>
                 <div class="term-body" id="console-output"></div>
             </div>
@@ -116,7 +112,6 @@
         <div class="submit-card">
             <div class="modal-header">
                 <h2>Post New Script</h2>
-                <p>Share your creations securely.</p>
             </div>
             <div class="input-stack">
                 <div class="group">
@@ -125,10 +120,7 @@
                 </div>
                 <div class="group">
                     <label>Code Content</label>
-                    <div class="syntax-box">
-                        <textarea id="post-content" oninput="updatePostSyntax()" spellcheck="false"></textarea>
-                        <div id="syntax-layer"></div>
-                    </div>
+                    <textarea id="post-content" spellcheck="false" placeholder="Paste your script here..."></textarea>
                 </div>
                 <div class="row-group">
                     <div class="sub-group">
