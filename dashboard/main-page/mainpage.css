@@ -1,71 +1,57 @@
-window.switchPage = function(pageId) {
-    document.querySelectorAll('.workspace').forEach(p => p.classList.add('hide'));
-    document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + (pageId === 'service' ? 'service' : pageId)).classList.remove('hide');
-    log(`Switched to ${pageId}`);
-};
-
-window.clearConsole = function() {
-    document.getElementById('console-output').innerHTML = '';
-    log("Console cleared.");
-};
-
-window.updateSyntax = function() {
-    const text = document.getElementById('post-content').value;
-    const highlight = document.getElementById('syntax-highlight');
-    // Simple coloring logic
-    highlight.innerHTML = text
-        .replace(/local|function|return|then|if|end|else|elseif/g, '<span class="kwd">$&</span>')
-        .replace(/".*?"/g, '<span class="str">$&</span>')
-        .replace(/\b\d+\b/g, '<span class="num">$&</span>');
-};
-
-async function renderScripts() {
-    const cList = document.getElementById('community-list');
-    const pList = document.getElementById('private-list');
-    const currentUser = document.getElementById('user-display').innerText;
-
-    try {
-        const res = await fetch('/api/scripts');
-        const data = await res.json();
-        cList.innerHTML = ''; pList.innerHTML = '';
-
-        data.forEach((s, i) => {
-            const card = document.createElement('div');
-            card.className = 'script-card';
-            card.innerHTML = `
-                <div class="script-info"><h3>${s.title}</h3><p>By ${s.owner}</p></div>
-                <button class="action-btn" onclick="openScriptFromServer('${s.id}')">view</button>
-            `;
-            // Only show in "Your Scripts" if owner matches
-            if (s.public) cList.appendChild(card);
-            else if (s.owner === currentUser) pList.appendChild(card);
-        });
-    } catch (e) { log("Failed to sync with server."); }
+.clear-log-btn {
+    background: #ef4444;
+    border: none;
+    color: white;
+    font-size: 0.55rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
-document.getElementById('btn-post-script').addEventListener('click', async () => {
-    const title = document.getElementById('post-title').value;
-    const content = document.getElementById('post-content').value;
-    const currentUser = document.getElementById('user-display').innerText;
-    
-    const body = {
-        title,
-        content,
-        owner: currentUser,
-        public: document.getElementById('post-public').value === 'yes',
-        pass: document.getElementById('use-pass').checked ? document.getElementById('post-pass').value : null
-    };
+.syntax-wrapper {
+    position: relative;
+    height: 150px;
+    background: #05060a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
 
-    const res = await fetch('/api/scripts', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-    });
+#post-content, #syntax-highlight {
+    position: absolute;
+    inset: 0;
+    padding: 1rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    background: transparent;
+    color: transparent;
+    caret-color: white;
+    border: none;
+    outline: none;
+    white-space: pre-wrap;
+}
 
-    if(res.ok) {
-        hideSubmitModal();
-        renderScripts();
-        log("Script successfully saved.");
-    }
-});
+#syntax-highlight {
+    color: #a1a1aa;
+    pointer-events: none;
+}
+
+.kwd { color: #3b82f6; font-weight: 700; }
+.str { color: #10b981; }
+.num { color: #f59e0b; }
+
+/* Clean Switch UI */
+.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background-color: #333; transition: .4s; border-radius: 20px;
+}
+input:checked + .slider { background-color: var(--blue); }
+.slider:before {
+    position: absolute; content: ""; height: 14px; width: 14px;
+    left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
+}
+input:checked + .slider:before { transform: translateX(20px); }
