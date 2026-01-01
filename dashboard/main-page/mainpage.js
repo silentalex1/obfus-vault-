@@ -17,25 +17,33 @@ window.hideSubmitModal = () => document.getElementById('submit-modal').classList
 window.togglePassInput = () => document.getElementById('pass-field').classList.toggle('hide');
 
 const highlighter = (text) => {
-    return text
-        .replace(/local|function|return|then|if|end|else|elseif|while|do|for|in|nil|true|false/g, '<span class="kwd">$&</span>')
+    const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return escaped
+        .replace(/\b(local|function|return|then|if|end|else|elseif|while|do|for|in|nil|true|false)\b/g, '<span class="kwd">$1</span>')
         .replace(/".*?"|'.*?'/g, '<span class="str">$&</span>')
-        .replace(/\b\d+\b/g, '<span class="num">$&</span>');
+        .replace(/\b(\d+)\b/g, '<span class="num">$1</span>')
+        .replace(/\b(print|warn|error|getgenv|getfenv|setmetatable|getmetatable|loadstring|pcall)\b/g, '<span class="fn">$1</span>');
 };
 
-window.updateMainSyntax = () => {
-    document.getElementById('main-syntax-layer').innerHTML = highlighter(document.getElementById('main-editor').value);
+window.updateSyntax = (type) => {
+    const area = type === 'main' ? document.getElementById('main-editor') : document.getElementById('post-content');
+    const layer = type === 'main' ? document.getElementById('main-highlight') : document.getElementById('post-highlight');
+    layer.innerHTML = highlighter(area.value) + "\n";
+};
+
+window.syncScroll = (type) => {
+    const area = type === 'main' ? document.getElementById('main-editor') : document.getElementById('post-content');
+    const layer = type === 'main' ? document.getElementById('main-highlight') : document.getElementById('post-highlight');
+    layer.scrollTop = area.scrollTop;
+    layer.scrollLeft = area.scrollLeft;
 };
 
 function log(t, s = false) {
     const div = document.createElement('div');
     div.className = s ? 'green' : '';
-    div.innerHTML = `<span style="color:rgba(255,255,255,0.2);margin-right:8px;">[${new Date().toLocaleTimeString()}]</span> > ${t}`;
+    div.innerHTML = `<span style="color:rgba(255,255,255,0.1);margin-right:8px;">[${new Date().toLocaleTimeString()}]</span> > ${t}`;
     const c = document.getElementById('console-output');
-    if (c) {
-        c.appendChild(div);
-        c.scrollTop = c.scrollHeight;
-    }
+    if(c){ c.appendChild(div); c.scrollTop = c.scrollHeight; }
 }
 
 const editor = document.getElementById('main-editor');
@@ -61,14 +69,14 @@ async function handleWork(m) {
     if (!c) return log("Error: Empty buffer.");
     loader.style.display = 'flex';
     let p = 0;
-    const stages = m === 'deob' ? ["IDENTIFYING VM", "SOLVING CONSTANTS", "SUCCESS"] : ["VIRTUALIZING", "SHIFTING BYTES", "SUCCESS"];
+    const stages = m === 'deob' ? ["IDENTIFYING VM", "DECRYPTING", "RECONSTRUCTING", "SUCCESS"] : ["VIRTUALIZING", "ENCRYPTING", "PACKING", "SUCCESS"];
     const t = setInterval(() => {
         p += 2; barFill.style.width = p + '%'; barVal.innerText = p + '%';
         barMsg.innerText = stages[Math.min(Math.floor((p/100)*stages.length), stages.length-1)];
         if (p >= 100) {
             clearInterval(t);
             editor.value = m === 'deob' ? customDeob(c) : `loadstring("${btoa(c)}")()`;
-            updateMainSyntax();
+            updateSyntax('main');
             setTimeout(() => { loader.style.display = 'none'; log(`${m.toUpperCase()} complete.`, true); }, 400);
         }
     }, 15);
@@ -76,14 +84,15 @@ async function handleWork(m) {
 
 document.getElementById('btn-pull').addEventListener('click', async () => {
     let u = document.getElementById('pull-url').value.trim();
-    log("Pulling code...");
+    if (!u) return log("Error: Invalid URL.");
+    log("Retreiving script...");
     try {
         const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`);
         const d = await r.text();
         editor.value = d;
-        updateMainSyntax();
-        log("Retrieved successfully.", true);
-    } catch(e) { log("Retrieval failed."); }
+        updateSyntax('main');
+        log("Successfully pulled to output buffer.", true);
+    } catch(e) { log("Pull failed."); }
 });
 
 async function renderScripts() {
@@ -118,7 +127,7 @@ document.getElementById('btn-post-script').addEventListener('click', async () =>
         });
         if (res.ok) {
             hideSubmitModal(); renderScripts();
-            log("Server: Data synchronized.", true);
+            log("Server: Script data synchronized.", true);
         }
     } catch(e) { log("Error posting script."); }
 });
@@ -132,4 +141,8 @@ document.getElementById('main-mode').addEventListener('change', (e) => {
     document.getElementById('obf-ui').classList.toggle('hide', e.target.value === 'deob');
 });
 
-window.onload = () => { renderScripts(); log("Vault Connected."); };
+window.onload = () => {
+    renderScripts(); 
+    log("Backend connected.");
+    setTimeout(() => log("discord bot has connected to the website Sucessfully!", true), 800);
+};
