@@ -8,10 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="static-bg">
-        <div class="layer grid-pattern"></div>
-        <div class="layer glow-center"></div>
+    <div id="blacklist-screen" class="hide">
+        <div class="blacklist-card">
+            <h1>Sorry our system has detected you being blacklisted. Was this a mistake?</h1>
+            <p>if you believe that this was a mistake please make a support ticket in the <a href="https://discord.gg/HVN5smcC3Z">discord server</a>.</p>
+        </div>
     </div>
+
+    <div class="static-bg"><div class="layer grid-pattern"></div><div class="layer glow-center"></div></div>
 
     <div class="layout-wrapper">
         <aside class="side-panel">
@@ -21,7 +25,7 @@
                     <button class="menu-btn active" onclick="switchPage('service')">obfuscator / deobfuscator</button>
                     <button class="menu-btn" onclick="switchPage('community')">community scripts</button>
                     <button class="menu-btn" onclick="switchPage('yours')">your scripts</button>
-                    <button class="menu-btn">feedback</button>
+                    <button class="menu-btn">website feedback</button>
                 </nav>
             </div>
             <div class="bottom-section">
@@ -42,18 +46,28 @@
                 </div>
                 <div class="header-right">
                     <div id="deob-ui" class="settings-row">
-                        <select id="deob-target"><option value="auto">Auto Detect</option><option value="m1">Moonsec</option></select>
-                        <button class="action-btn" id="run-deob">Deobfuscate</button>
+                        <select id="deob-target">
+                            <option value="auto">Auto Detect</option>
+                            <option value="m1">Moonsec V1/V2</option>
+                            <option value="js">JS Obfuscator</option>
+                        </select>
+                        <button class="action-btn glow" id="run-deob">Deobfuscate</button>
                     </div>
                     <div id="obf-ui" class="settings-row hide">
-                        <select id="obf-mode"><option value="vm">Lua VM</option><option value="js">JS VM</option></select>
-                        <button class="action-btn" id="run-obf">Obfuscate</button>
+                        <select id="obf-mode">
+                            <option value="vm">Roblox Lua VM</option>
+                            <option value="js-vm">Chrome JS VM</option>
+                        </select>
+                        <button class="action-btn glow" id="run-obf">Obfuscate</button>
                     </div>
                 </div>
             </div>
 
             <div class="editor-shell">
-                <textarea id="main-editor" spellcheck="false" placeholder="Paste code here..."></textarea>
+                <div class="syntax-editor">
+                    <textarea id="main-editor" spellcheck="false" oninput="updateMainSyntax()" placeholder="Paste script or use puller..."></textarea>
+                    <div id="main-syntax-layer"></div>
+                </div>
                 <div class="loader-overlay" id="work-loader">
                     <div class="loader-content">
                         <div class="scan-line"></div>
@@ -84,14 +98,14 @@
             <div class="floating-terminal">
                 <div class="term-head">
                     <span>CONSOLE</span>
-                    <button class="clear-btn" onclick="clearConsole()">clear</button>
+                    <button class="clear-btn-big" onclick="clearConsole()">CLEAR CONSOLE</button>
                 </div>
                 <div class="term-body" id="console-output"></div>
             </div>
             <div class="code-puller">
                 <div class="puller-head">VAULT PULLER</div>
                 <div class="puller-body">
-                    <input type="text" id="pull-url" placeholder="URL Link...">
+                    <input type="text" id="pull-url" placeholder="Enter URL Link...">
                     <button id="btn-pull">Pull & Retrieve</button>
                 </div>
             </div>
@@ -100,20 +114,39 @@
 
     <div class="modal-overlay hide" id="submit-modal">
         <div class="submit-card">
-            <h2>Post New Script</h2>
+            <div class="modal-header">
+                <h2>Post New Script</h2>
+                <p>Share your creations securely.</p>
+            </div>
             <div class="input-stack">
-                <input type="text" id="post-title" placeholder="Title">
-                <div class="syntax-box">
-                    <textarea id="post-content" oninput="updateSyntax()" spellcheck="false"></textarea>
-                    <div id="syntax-layer"></div>
+                <div class="group">
+                    <label>Title</label>
+                    <input type="text" id="post-title" placeholder="Script Name">
                 </div>
-                <select id="post-public"><option value="yes">Public</option><option value="no">Private</option></select>
-                <div class="check-row"><span>Password?</span><label class="switch"><input type="checkbox" id="use-pass" onclick="togglePassInput()"><span class="slider"></span></label></div>
-                <div id="pass-field" class="hide"><input type="password" id="post-pass" placeholder="Password"></div>
+                <div class="group">
+                    <label>Code Content</label>
+                    <div class="syntax-box">
+                        <textarea id="post-content" oninput="updatePostSyntax()" spellcheck="false"></textarea>
+                        <div id="syntax-layer"></div>
+                    </div>
+                </div>
+                <div class="row-group">
+                    <div class="sub-group">
+                        <label>Public?</label>
+                        <select id="post-public"><option value="yes">Yes</option><option value="no">No</option></select>
+                    </div>
+                    <div class="sub-group">
+                        <label>Password Protect?</label>
+                        <label class="switch"><input type="checkbox" id="use-pass" onclick="togglePassInput()"><span class="slider"></span></label>
+                    </div>
+                </div>
+                <div id="pass-field" class="hide">
+                    <input type="password" id="post-pass" placeholder="Enter viewing password">
+                </div>
             </div>
             <div class="modal-btns">
-                <button onclick="hideSubmitModal()">cancel</button>
-                <button id="btn-post-script" class="modal-confirm">post script</button>
+                <button class="cancel-btn" onclick="hideSubmitModal()">cancel</button>
+                <button id="btn-post-script" class="confirm-btn">post script</button>
             </div>
         </div>
     </div>
