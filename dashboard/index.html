@@ -3,86 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Obfus Vault</title>
+    <title>Login | ObfusVault</title>
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="static-bg">
-        <div class="layer grid-pattern"></div>
-        <div class="layer glow-center"></div>
-    </div><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Obfus Vault</title>
-    <link rel="stylesheet" href="dashboard.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="static-bg">
         <div class="layer grid-pattern"></div>
         <div class="layer glow-center"></div>
     </div>
-
-    <div class="auth-wrapper">
-        <div class="auth-container">
-            <h1 id="auth-title">Create Account</h1>
-            <p id="auth-subtitle">Welcome to the secure vault.</p>
-            <div id="error-msg" class="error-bubble" style="display:none; color:#ef4444; background:rgba(239,68,68,0.1); padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.8rem; font-weight:700;"></div>
-            
-            <div class="input-group">
-                <label>Username</label>
-                <input type="text" id="username" placeholder="Username">
-            </div>
-
-            <div class="input-group">
-                <label>Password</label>
-                <div class="password-wrap">
-                    <input type="password" id="password" placeholder="Password">
-                    <button type="button" id="toggle-pass" class="show-btn">Show</button>
-                </div>
-            </div>
-
-            <button id="auth-submit" class="primary-btn">Create account.</button>
-            <div class="separator"><span>or</span></div>
-            <button id="discord-btn" class="discord-btn">Login with Discord</button>
-            <div class="auth-toggle">
-                <span id="toggle-text">Already have an account?</span>
-                <button id="switch-mode">Login here.</button>
-            </div>
-        </div>
-    </div>
-    <script src="dashboard.js"></script>
-</body>
-</html>
-
     <nav>
         <div class="nav-inner">
-            <div class="logo">OBFUS VAULT</div>
+            <div class="logo">OBFUSVAULT</div>
             <div class="nav-links">
                 <a href="/" class="nav-item">Home</a>
             </div>
         </div>
     </nav>
-
     <div class="auth-wrapper">
         <div class="auth-container">
             <div id="auth-header">
                 <h1 id="auth-title">Sign In</h1>
                 <p id="auth-subtitle">Welcome to the secure vault dashboard.</p>
             </div>
-
+            <div id="error-msg" style="display:none;color:#ff4444;font-size:13px;margin-bottom:12px;padding:10px;background:rgba(255,68,68,0.1);border-radius:6px;border:1px solid rgba(255,68,68,0.2);"></div>
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Username" autocomplete="off" />
+            </div>
+            <div class="input-group" style="position:relative;">
+                <input type="password" id="password" placeholder="Password" />
+                <button id="toggle-pass" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;cursor:pointer;font-size:12px;">Show</button>
+            </div>
+            <button id="auth-submit" class="submit-btn">Sign In.</button>
+            <div class="switch-row">
+                <span id="switch-label">Don't have an account?</span>
+                <button id="switch-mode" class="switch-btn">Create one here.</button>
+            </div>
+            <div class="divider"><span>or</span></div>
             <button id="discord-btn" class="discord-btn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
                 Login with Discord
             </button>
         </div>
     </div>
-
     <script src="dashboard.js"></script>
 </body>
 </html>
