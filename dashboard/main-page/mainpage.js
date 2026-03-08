@@ -48,258 +48,291 @@ function log(t, s = false) {
     if (c) { c.appendChild(div); c.scrollTop = c.scrollHeight; }
 }
 
-function ovLCG(seed) {
-    let s = seed % 2147483648;
-    let c = 1;
-    return function(lo, hi) {
-        const a = 1664525, b = 1013904223, m = 99999999;
-        const v = (a * s + b) % m + c;
-        c++;
-        s = v;
-        return lo + (v % (hi - lo + 1));
+const _OV_KW = new Set([
+    'and','break','do','else','elseif','end','false','for','function',
+    'goto','if','in','local','nil','not','or','repeat','return','then','true','until','while'
+]);
+
+const _OV_RBX = new Set([
+    'game','workspace','script','Instance','Vector3','CFrame','Color3','UDim2','UDim',
+    'Enum','Players','RunService','Heartbeat','UserSettings','TweenService','HttpService',
+    'ReplicatedStorage','ServerStorage','ServerScriptService','Lighting','SoundService',
+    'task','wait','spawn','delay','tick','time','warn','print','error','assert','pcall',
+    'xpcall','pairs','ipairs','next','select','type','tostring','tonumber','rawget',
+    'rawset','setmetatable','getmetatable','load','loadstring','require','unpack',
+    'table','string','math','os','io','coroutine','bit32','utf8','debug','Vector2',
+    'Vector3int16','BrickColor','Ray','Region3','NumberRange','NumberSequence',
+    'ColorSequence','PhysicalProperties','Faces','Axes','Random','DateTime',
+    'RaycastParams','OverlapParams','getfenv','setfenv','rawequal','rawlen',
+    'collectgarbage','_G','_ENV','_VERSION','SharedTable','buffer','Workspace',
+    'TweenInfo','Rect','Color3','UDim','NumberSequenceKeypoint','ColorSequenceKeypoint',
+    'CFrame','Vector3int16','Vector2int16'
+]);
+
+function _ovXS(seed) {
+    let s = (seed ^ 0xDEADBEEF) >>> 0;
+    return () => {
+        s ^= s << 13; s >>>= 0;
+        s ^= s >> 17; s >>>= 0;
+        s ^= s << 5;  s >>>= 0;
+        return s;
     };
 }
 
-function ovHash(str) {
-    let h = 0x811c9dc5;
-    for (let i = 0; i < str.length; i++) {
-        h ^= str.charCodeAt(i);
-        h = (h * 0x01000193) >>> 0;
-    }
-    return h;
-}
-
-function ovRC4(data, key) {
-    const S = Array.from({length: 256}, (_, i) => i);
-    let j = 0;
-    for (let i = 0; i < 256; i++) {
-        j = (j + S[i] + key.charCodeAt(i % key.length)) & 0xFF;
-        [S[i], S[j]] = [S[j], S[i]];
-    }
-    let x = 0, y = 0;
-    const out = [];
-    for (let i = 0; i < data.length; i++) {
-        x = (x + 1) & 0xFF;
-        y = (y + S[x]) & 0xFF;
-        [S[x], S[y]] = [S[y], S[x]];
-        out.push(data.charCodeAt(i) ^ S[(S[x] + S[y]) & 0xFF]);
-    }
-    return out;
-}
-
-function ovB64Enc(bytes) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-    let out = '', i = 0;
-    while (i < bytes.length) {
-        const a = bytes[i++], b = bytes[i++] ?? 0, c = bytes[i++] ?? 0;
-        out += chars[a >> 2] + chars[((a & 3) << 4) | (b >> 4)] +
-               (i - 1 < bytes.length || arguments[1] ? chars[((b & 0xf) << 2) | (c >> 6)] : '=') +
-               (i < bytes.length || arguments[1] ? chars[c & 0x3f] : '=');
-    }
-    return out;
-}
-
-function ovB64Dec(s) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-    const lut = {};
-    for (let i = 0; i < 64; i++) lut[chars[i]] = i;
-    const out = [];
-    for (let i = 0; i < s.length; i += 4) {
-        const a = lut[s[i]], b = lut[s[i+1]], c = lut[s[i+2]], d = lut[s[i+3]];
-        out.push((a << 2) | (b >> 4));
-        if (s[i+2] !== '=') out.push(((b & 0xf) << 4) | (c >> 2));
-        if (s[i+3] !== '=') out.push(((c & 0x3) << 6) | d);
-    }
-    return out;
-}
-
-function ovGenKey(len) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const arr = new Uint8Array(len);
-    crypto.getRandomValues(arr);
-    return Array.from(arr).map(b => chars[b % chars.length]).join('');
-}
-
-function ovGenName(rng, prefix) {
-    const consonants = 'bcdfghjklmnprstvwxz';
-    const vowels = 'aeiou';
-    let n = prefix || '_';
-    const len = rng(4, 9);
-    for (let i = 0; i < len; i++) {
-        n += i % 2 === 0 ? consonants[rng(0, consonants.length - 1)] : vowels[rng(0, vowels.length - 1)];
-    }
+function _ovName(rnd, used) {
+    const v = 'aeiou', c = 'bcdfghjklmnprstvwxz';
+    let n;
+    do {
+        n = '_';
+        const len = (rnd() % 7) + 4;
+        for (let i = 0; i < len; i++) {
+            n += (i % 2 === 0 ? c : v)[rnd() % (i % 2 === 0 ? c.length : v.length)];
+        }
+        n += '_' + (rnd() % 0xFFFF).toString(36);
+    } while (used.has(n));
+    used.add(n);
     return n;
 }
 
-function ovTokenize(code) {
-    const tokens = [];
-    const patterns = [
-        { type: 'comment_long', re: /^--\[\[[\s\S]*?\]\]/  },
-        { type: 'comment', re: /^--[^\n]*/ },
-        { type: 'string_long', re: /^\[\[[\s\S]*?\]\]/ },
-        { type: 'string', re: /^"(?:[^"\\]|\\.)*"|^'(?:[^'\\]|\\.)*'/ },
-        { type: 'number', re: /^0x[0-9a-fA-F]+|^\d+\.?\d*(?:[eE][+-]?\d+)?/ },
-        { type: 'keyword', re: /^(?:and|break|do|else|elseif|end|false|for|function|goto|if|in|local|nil|not|or|repeat|return|then|true|until|while)\b/ },
-        { type: 'name', re: /^[_a-zA-Z][_a-zA-Z0-9]*/ },
-        { type: 'op', re: /^(?:\.\.\.|\.\.|[+\-*\/%^#&|~<>=]=?|[(){}\[\];:,\.])/ },
-        { type: 'ws', re: /^\s+/ },
-    ];
-    let i = 0;
-    while (i < code.length) {
-        let matched = false;
-        for (const { type, re } of patterns) {
-            const m = code.slice(i).match(re);
-            if (m) {
-                tokens.push({ type, val: m[0] });
-                i += m[0].length;
-                matched = true;
-                break;
+function _ovTokenize(src) {
+    const out = []; let i = 0;
+    while (i < src.length) {
+        if (src[i] === '-' && src[i+1] === '-') {
+            if (src[i+2] === '[' && src[i+3] === '[') {
+                const e = src.indexOf(']]', i+4);
+                i = e < 0 ? src.length : e + 2;
+            } else {
+                while (i < src.length && src[i] !== '\n') i++;
             }
+            continue;
         }
-        if (!matched) { tokens.push({ type: 'unknown', val: code[i] }); i++; }
+        if (src[i] === '[' && src[i+1] === '[') {
+            const e = src.indexOf(']]', i+2);
+            out.push({ t: 'STR', v: src.slice(i+2, e < 0 ? src.length : e) });
+            i = e < 0 ? src.length : e + 2; continue;
+        }
+        if (src[i] === '"' || src[i] === "'") {
+            const q = src[i]; let s = ''; i++;
+            while (i < src.length && src[i] !== q) {
+                if (src[i] === '\\') {
+                    i++;
+                    const em = {'n':'\n','t':'\t','r':'\r','\\':'\\','"':'"',"'":"'", '0':'\0','a':'\x07','b':'\x08'};
+                    s += em[src[i]] !== undefined ? em[src[i]] : src[i];
+                    i++;
+                } else s += src[i++];
+            }
+            i++;
+            out.push({ t: 'STR', v: s }); continue;
+        }
+        const nm = src.slice(i).match(/^0x[0-9a-fA-F]+|^\d+\.?\d*(?:[eE][+-]?\d+)?/);
+        if (nm) { out.push({ t: 'NUM', v: nm[0] }); i += nm[0].length; continue; }
+        const id = src.slice(i).match(/^[_a-zA-Z][_a-zA-Z0-9]*/);
+        if (id) {
+            const n = id[0];
+            out.push({ t: _OV_KW.has(n) ? 'KW' : 'ID', v: n });
+            i += n.length; continue;
+        }
+        const ws = src.slice(i).match(/^\s+/);
+        if (ws) { out.push({ t: 'WS', v: ws[0] }); i += ws[0].length; continue; }
+        const op = src.slice(i).match(/^(?:\.\.\.|\.\.|~=|[=<>~]=|[+\-*\/%^#&|~<>]|[(){}\[\];:,\.])/);
+        if (op) { out.push({ t: 'OP', v: op[0] }); i += op[0].length; continue; }
+        out.push({ t: 'UNK', v: src[i++] });
     }
-    return tokens;
+    return out;
 }
 
-function ovObfuscate(src) {
-    const seed = Date.now() & 0xFFFFFFFF;
-    const rng = ovLCG(seed);
-    const key = ovGenKey(16);
-
-    const KEYWORDS = new Set(['and','break','do','else','elseif','end','false','for','function',
-        'goto','if','in','local','nil','not','or','repeat','return','then','true','until','while',
-        'print','pairs','ipairs','next','select','type','tostring','tonumber','rawget','rawset',
-        'setmetatable','getmetatable','pcall','xpcall','error','assert','load','loadstring',
-        'require','math','string','table','os','io','game','workspace','script','task',
-        'wait','spawn','coroutine','Instance','Vector3','CFrame','Color3','UDim2',
-        'UDim','Enum','Players','RunService','Heartbeat','UserSettings']);
-
-    const tokens = ovTokenize(src);
-
-    const names = {};
-    const namePool = {};
-    let nameCounter = 0;
-
-    for (const tok of tokens) {
-        if (tok.type === 'name' && !KEYWORDS.has(tok.val)) {
-            if (!names[tok.val]) {
-                names[tok.val] = ovGenName(rng, '_OV' + (nameCounter++).toString(36) + '_');
-            }
-        }
+function _ovEncStr(str, key) {
+    const out = new Array(str.length);
+    for (let i = 0; i < str.length; i++) {
+        const b  = str.charCodeAt(i);
+        const k0 = key[i % key.length];
+        const k1 = key[(i * 7  + 3)  % key.length];
+        const k2 = key[(i * 13 + 11) % key.length];
+        out[i] = ((b ^ k0) + k1) % 256 ^ k2;
     }
+    return out;
+}
 
-    const strings = [];
-    let tokenized = tokens.map(tok => {
-        if (tok.type === 'comment' || tok.type === 'comment_long') return '';
-        if (tok.type === 'string' || tok.type === 'string_long') {
-            const inner = tok.val.slice(tok.type === 'string_long' ? 2 : 1, tok.type === 'string_long' ? -2 : -1);
-            const bytes = [];
-            for (let i = 0; i < inner.length; i++) bytes.push(inner.charCodeAt(i));
-            const idx = strings.length;
-            strings.push(bytes);
-            return '__OVS[' + idx + ']';
-        }
-        if (tok.type === 'name' && !KEYWORDS.has(tok.val) && names[tok.val]) {
-            return names[tok.val];
-        }
-        return tok.val;
-    }).join('');
-
-    const numVars = 6 + rng(0, 4);
-    const varNames = Array.from({length: numVars}, (_, i) => ovGenName(rng, '_OVV' + i + '_'));
-
-    const encStrings = strings.map(bytes => {
-        const xored = ovRC4(String.fromCharCode(...bytes), key);
-        return ovB64Enc(xored);
+function _ovRC4(bytes, key) {
+    const S = Array.from({ length: 256 }, (_, i) => i);
+    let j = 0;
+    for (let i = 0; i < 256; i++) {
+        j = (j + S[i] + key[i % key.length]) & 0xFF;
+        [S[i], S[j]] = [S[j], S[i]];
+    }
+    let x = 0, y = 0;
+    return bytes.map(b => {
+        x = (x + 1) & 0xFF;
+        y = (y + S[x]) & 0xFF;
+        [S[x], S[y]] = [S[y], S[x]];
+        return b ^ S[(S[x] + S[y]) & 0xFF];
     });
+}
 
-    const lcgA = 1664525, lcgB = 1013904223;
-    const prngSeed = rng(100000, 999999);
-    const prngMod = 99999999;
+function _ovJunk(rnd) {
+    const a = (rnd() % 9000) + 1000;
+    const b = (rnd() % 9000) + 1000;
+    const v = '_j' + (rnd() % 0xFFFF).toString(36);
+    const w = '_j' + (rnd() % 0xFFFF).toString(36);
+    const forms = [
+        `local ${v}=${a};local ${w}=${b};if ${v}>${w} then ${v}=${v}-1 else ${w}=${w}+1 end`,
+        `local ${v}=type("")=="string" and ${a} or ${b}`,
+        `local ${v}=${a};for _=1,0 do ${v}=${v}+1 end`,
+        `if false then local ${v}=${a+b} end`,
+        `local ${v}=(${a}*1)+(${b}*0)`,
+    ];
+    return forms[rnd() % forms.length];
+}
 
-    const vmName = ovGenName(rng, '_OVM_');
-    const decName = ovGenName(rng, '_OVD_');
-    const strTblName = '__OVS';
-    const keyName = ovGenName(rng, '_OVK_');
-    const b64Name = ovGenName(rng, '_OVB_');
-    const rc4Name = ovGenName(rng, '_OVR_');
-    const lutName = ovGenName(rng, '_OVL_');
-
-    const junkVarA = varNames[0], junkVarB = varNames[1], junkVarC = varNames[2];
-    const junkA = rng(1000, 99999), junkB = rng(1000, 99999), junkC = rng(1000, 99999);
-
-    const strTableSrc = '{' + encStrings.map(s => '"' + s + '"').join(',') + '}';
-
-    const header = `local ${junkVarA}=${junkA}
-local ${junkVarB}=${junkB}
-local ${junkVarC}=${junkC+junkA}
-local ${keyName}="${key}"
-local ${b64Name}="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local ${lutName}={}
-for ${varNames[3]}=1,64 do ${lutName}[${b64Name}:sub(${varNames[3]},${varNames[3]})]=${varNames[3]}-1 end
-local ${rc4Name}=function(${varNames[4]},${varNames[5]})
+function _ovBuildRuntime(decFn, rc4Fn) {
+    return `local function ${decFn}(b,k)
+local o={}
+for i=1,#b do
+local k0=k[(i-1)%#k+1]
+local k1=k[((i-1)*7+3)%#k+1]
+local k2=k[((i-1)*13+11)%#k+1]
+o[i]=string.char(((b[i]~k2)-k1+512)%256~k0)
+end
+return table.concat(o)
+end
+local function ${rc4Fn}(b,k)
 local S={}
 for i=0,255 do S[i]=i end
 local j=0
 for i=0,255 do
-j=(j+S[i]+${varNames[5]}:byte(i%#${varNames[5]}+1))%256
+j=(j+S[i]+k[i%#k+1])%256
 S[i],S[j]=S[j],S[i]
 end
-local x,y,r=0,0,{}
-for i=1,#${varNames[4]} do
+local x,y,o=0,0,{}
+for i=1,#b do
 x=(x+1)%256
 y=(y+S[x])%256
 S[x],S[y]=S[y],S[x]
-r[i]=string.char(${varNames[4]}:byte(i)~S[(S[x]+S[y])%256])
+o[i]=b[i]~S[(S[x]+S[y])%256]
 end
-return table.concat(r)
-end
-local ${decName}=function(${varNames[3]})
-local b,out=${varNames[3]},{}
-local i=1
-while i<=#b do
-local a,c,d=${lutName}[b:sub(i,i)],${lutName}[b:sub(i+1,i+1)],${lutName}[b:sub(i+2,i+2)]
-local e=${lutName}[b:sub(i+3,i+3)]
-out[#out+1]=string.char((a<<2)|(c>>4))
-if b:sub(i+2,i+2)~="=" then out[#out+1]=string.char(((c&15)<<4)|(d>>2)) end
-if b:sub(i+3,i+3)~="=" then out[#out+1]=string.char(((d&3)<<6)|e) end
-i=i+4
-end
-return ${rc4Name}(table.concat(out),${keyName})
-end
-local ${strTblName}={}
-local ${vmName}=${strTableSrc}
-for ${varNames[3]}=0,#${vmName}-1 do ${strTblName}[${varNames[3]}]=${decName}(${vmName}[${varNames[3]}+1]) end
-`;
+return o
+end`;
+}
 
-    const footer = '\n';
+function ovObfuscate(src) {
+    const seed = (Date.now() ^ 0xCAFEF00D) >>> 0;
+    const rnd  = _ovXS(seed);
+    const used = new Set([..._OV_KW, ..._OV_RBX]);
+    const nameMap = {};
+    const tokens  = _ovTokenize(src);
 
-    return header + tokenized + footer;
+    for (const tok of tokens) {
+        if (tok.t === 'ID' && !_OV_RBX.has(tok.v) && !nameMap[tok.v]) {
+            nameMap[tok.v] = _ovName(rnd, used);
+        }
+    }
+
+    const strKeyLen = 20 + (rnd() % 16);
+    const strKey    = Array.from({ length: strKeyLen }, () => (rnd() % 220) + 20);
+
+    const encStrings = [];
+    const strMarker  = '';
+    let body = '';
+
+    for (const tok of tokens) {
+        if (tok.t === 'STR') {
+            const enc = _ovEncStr(tok.v, strKey);
+            const idx = encStrings.length;
+            encStrings.push(enc);
+            body += strMarker + idx + strMarker;
+        } else if (tok.t === 'ID' && !_OV_RBX.has(tok.v) && nameMap[tok.v]) {
+            body += nameMap[tok.v];
+        } else if (tok.t !== 'WS') {
+            body += tok.v;
+        } else {
+            body += ' ';
+        }
+    }
+
+    const lines    = body.split('\n').filter(l => l.trim());
+    const jEvery   = Math.max(3, Math.floor(lines.length / 12));
+    const augLines = [];
+    for (let i = 0; i < lines.length; i++) {
+        augLines.push(lines[i]);
+        if (i > 0 && i % jEvery === 0) augLines.push(_ovJunk(rnd));
+    }
+
+    let inner = augLines.join('\n');
+    for (let i = encStrings.length - 1; i >= 0; i--) {
+        inner = inner.split(strMarker + i + strMarker).join('__ovst[' + i + ']');
+    }
+
+    const rn = () => '_' + (rnd() % 0xFFFF).toString(36);
+    const strTblN = rn(), keyStrN = rn(), decFnN = rn(), rc4FnN = rn();
+    const key2N   = rn(), bcN     = rn(), execN  = rn();
+
+    const strDecl = (() => {
+        if (encStrings.length === 0) return 'local __ovst={}\n';
+        const encLits = encStrings.map(enc => '{' + enc.join(',') + '}').join(',');
+        return (
+            'local ' + keyStrN + '={' + strKey.join(',') + '}\n' +
+            'local __ovst_raw={' + encLits + '}\n' +
+            'local __ovst={}\n' +
+            'for __i=1,#__ovst_raw do\n' +
+            '__ovst[__i-1]=' + decFnN + '(__ovst_raw[__i],' + keyStrN + ')\n' +
+            'end\n'
+        );
+    })();
+
+    const fullInner  = strDecl + inner;
+    const innerBytes = Array.from(fullInner, c => c.charCodeAt(0));
+    const rc4Key     = Array.from({ length: strKeyLen }, () => (rnd() % 220) + 20);
+    const encInner   = _ovRC4(innerBytes, rc4Key);
+
+    const j1 = _ovJunk(rnd), j2 = _ovJunk(rnd), j3 = _ovJunk(rnd);
+    const intV  = (rnd() % 0xFFFFFF).toString(16);
+    const intVN = rn();
+    const antiTampN = rn();
+
+    const runtime = _ovBuildRuntime(decFnN, rc4FnN);
+
+    const output =
+        runtime + '\n' +
+        'local ' + key2N + '={' + rc4Key.join(',') + '}\n' +
+        j1 + '\n' +
+        'local ' + bcN + '={' + encInner.join(',') + '}\n' +
+        j2 + '\n' +
+        'local ' + intVN + '="' + intV + '"\n' +
+        'assert(#' + intVN + '==' + intV.length + ',"[ObfusVault] integrity failure")\n' +
+        j3 + '\n' +
+        'local ' + antiTampN + '=(' + rc4Key[0] + '^' + rc4Key[1] + ')\n' +
+        'assert(' + antiTampN + '==' + (rc4Key[0] ^ rc4Key[1]) + ',"[ObfusVault] tamper detected")\n' +
+        'local ' + execN + '=' + rc4FnN + '(' + bcN + ',' + key2N + ')\n' +
+        'local _src={}\n' +
+        'for _i=1,#' + execN + ' do _src[_i]=string.char(' + execN + '[_i]) end\n' +
+        'local _fn=loadstring(table.concat(_src)) or load(table.concat(_src))\n' +
+        'assert(_fn,"[ObfusVault] execution error")\n' +
+        '_fn()\n';
+
+    return output;
 }
 
 function ovDeobfuscate(src) {
     let r = src;
     r = r.replace(/string\.char\(([\d,\s]+)\)/g, (_, n) => {
-        try {
-            const chars = n.split(',').map(x => parseInt(x.trim()));
-            return '"' + String.fromCharCode(...chars) + '"';
-        } catch { return _; }
+        try { return '"' + String.fromCharCode(...n.split(',').map(x => parseInt(x.trim()))) + '"'; } catch { return _; }
     });
-    r = r.replace(/\bbit32\.bxor\((\d+),\s*(\d+)\)/g, (_, a, b) => String(parseInt(a) ^ parseInt(b)));
-    r = r.replace(/\bbit32\.band\((\d+),\s*(\d+)\)/g, (_, a, b) => String(parseInt(a) & parseInt(b)));
-    r = r.replace(/\bbit32\.bor\((\d+),\s*(\d+)\)/g, (_, a, b) => String(parseInt(a) | parseInt(b)));
-    r = r.replace(/\bbit32\.bnot\((\d+)\)/g, (_, a) => String(~parseInt(a) >>> 0));
-    r = r.replace(/\bbit32\.lshift\((\d+),\s*(\d+)\)/g, (_, a, b) => String(parseInt(a) << parseInt(b)));
-    r = r.replace(/\bbit32\.rshift\((\d+),\s*(\d+)\)/g, (_, a, b) => String(parseInt(a) >>> parseInt(b)));
-    r = r.replace(/\bmath\.floor\((\d+(?:\.\d+)?)\)/g, (_, n) => String(Math.floor(parseFloat(n))));
-    r = r.replace(/\btostring\((\d+)\)/g, (_, n) => '"' + n + '"');
-    r = r.replace(/\(\s*(\d+)\s*\+\s*(\d+)\s*\)/g, (_, a, b) => String(parseInt(a) + parseInt(b)));
-    r = r.replace(/\(\s*(\d+)\s*\*\s*(\d+)\s*\)/g, (_, a, b) => String(parseInt(a) * parseInt(b)));
-    r = r.replace(/\(\s*(\d+)\s*%\s*(\d+)\s*\)/g, (_, a, b) => String(parseInt(a) % parseInt(b)));
+    r = r.replace(/\bbit32\.bxor\((\d+),\s*(\d+)\)/g, (_,a,b) => String(parseInt(a)^parseInt(b)));
+    r = r.replace(/\bbit32\.band\((\d+),\s*(\d+)\)/g, (_,a,b) => String(parseInt(a)&parseInt(b)));
+    r = r.replace(/\bbit32\.bor\((\d+),\s*(\d+)\)/g,  (_,a,b) => String(parseInt(a)|parseInt(b)));
+    r = r.replace(/\bbit32\.bnot\((\d+)\)/g,             (_,a)   => String((~parseInt(a))>>>0));
+    r = r.replace(/\bbit32\.lshift\((\d+),\s*(\d+)\)/g,(_,a,b) => String(parseInt(a)<<parseInt(b)));
+    r = r.replace(/\bbit32\.rshift\((\d+),\s*(\d+)\)/g,(_,a,b) => String(parseInt(a)>>>parseInt(b)));
+    r = r.replace(/\bmath\.floor\((\d+(?:\.\d+)?)\)/g, (_,n)   => String(Math.floor(parseFloat(n))));
+    r = r.replace(/\bmath\.ceil\((\d+(?:\.\d+)?)\)/g,  (_,n)   => String(Math.ceil(parseFloat(n))));
+    r = r.replace(/\btostring\((\d+)\)/g,                 (_,n)   => '"'+n+'"');
+    r = r.replace(/\(\s*(\d+)\s*([+\-*%])\s*(\d+)\s*\)/g, (_,a,op,b) => {
+        const x=parseInt(a), y=parseInt(b);
+        return op==='+'?String(x+y):op==='-'?String(x-y):op==='*'?String(x*y):String(x%y);
+    });
     r = r.replace(/--\[\[[\s\S]*?\]\]/g, '');
     r = r.replace(/--[^\n]*/g, '');
     r = r.replace(/\n{3,}/g, '\n\n');
-    r = r.replace(/local\s+[_a-zA-Z][_a-zA-Z0-9]*\s*=\s*\d+\n(?=local\s+[_a-zA-Z][_a-zA-Z0-9]*\s*=\s*\d+\n)/g, '');
     return r.trim();
 }
 
@@ -308,31 +341,27 @@ async function handleWork(m) {
     if (!c) return log('Error: Empty buffer.');
     const loader = document.getElementById('work-loader');
     loader.style.display = 'flex';
-
     const stages = m === 'deob'
-        ? ['SCANNING TOKENS', 'RESOLVING CONSTANTS', 'REBUILDING AST', 'CLEANING']
-        : ['TOKENIZING SOURCE', 'ENCRYPTING STRINGS', 'INJECTING VM', 'FINALIZING'];
-
+        ? ['SCANNING', 'RESOLVING', 'REBUILDING', 'CLEANING']
+        : ['TOKENIZING', 'ENCRYPTING STRINGS', 'RC4 SEALING', 'FINALIZING'];
     let p = 0;
     const t = setInterval(() => {
-        p += 1.4;
-        const clamped = Math.min(p, 99);
-        document.getElementById('load-fill').style.width = clamped + '%';
-        document.getElementById('load-val').innerText = Math.floor(clamped) + '%';
-        document.getElementById('loader-msg').innerText = stages[Math.min(Math.floor((clamped / 100) * stages.length), stages.length - 1)];
+        p += 1.1;
+        const cl = Math.min(p, 99);
+        document.getElementById('load-fill').style.width = cl + '%';
+        document.getElementById('load-val').innerText = Math.floor(cl) + '%';
+        document.getElementById('loader-msg').innerText = stages[Math.min(Math.floor((cl/100)*stages.length), stages.length-1)];
         if (p >= 100) {
             clearInterval(t);
             try {
                 document.getElementById('main-editor').value = m === 'deob' ? ovDeobfuscate(c) : ovObfuscate(c);
-            } catch(e) {
-                log('Engine error: ' + e.message);
-            }
+            } catch(e) { log('Engine error: ' + e.message); }
             updateMainSyntax();
             document.getElementById('load-fill').style.width = '100%';
             document.getElementById('load-val').innerText = '100%';
             setTimeout(() => { loader.style.display = 'none'; log(m.toUpperCase() + ' complete.', true); }, 300);
         }
-    }, 14);
+    }, 12);
 }
 const pullBtn = document.getElementById('btn-pull');
 if (pullBtn) {
