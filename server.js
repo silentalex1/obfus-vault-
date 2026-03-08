@@ -24,27 +24,40 @@ db.exec(`
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
-function ovHash(str) {
-    let h = 0x811c9dc5;
+function fnv1a(str) {
+    let h = 0x811c9dc5 >>> 0;
     for (let i = 0; i < str.length; i++) {
         h ^= str.charCodeAt(i);
         h = Math.imul(h, 0x01000193) >>> 0;
     }
-    return h.toString(16).padStart(8, '0');
+    return h;
 }
 
+function ovHash(str) {
+    let a = fnv1a(str + 'OV_A_2025');
+    let b = fnv1a(str + 'OV_B_2025');
+    let c = fnv1a(str + 'OV_C_2025');
+    for (let i = 0; i < 256; i++) {
+        const t = a;
+        a = ((b ^ (c >>> 3)) + Math.imul(a, 0x9e3779b9)) >>> 0;
+        b = ((c ^ (a << 5))  + Math.imul(b, 0x85ebca6b)) >>> 0;
+        c = ((t ^ (b >>> 7)) + Math.imul(c, 0xc2b2ae35)) >>> 0;
+    }
+    return [a, b, c].map(x => x.toString(16).padStart(8,'0')).join('');
+}
 function verifyClientToken(tok) {
     try {
-        const raw = Buffer.from(tok, 'base64').toString('utf8');
-        const parts = raw.split(':');
+        const raw   = Buffer.from(tok, 'base64').toString('utf8');
+        const parts = raw.split('|');
         if (parts.length !== 4) return null;
         const [username, ts, rand, sig] = parts;
-        const expected = ovHash(username + ts + rand + 'ov_client_secret');
+        const age = Date.now() - parseInt(ts, 36);
+        if (age > 30 * 24 * 60 * 60 * 1000) return null;
+        const expected = ovHash(username + '|' + ts + '|' + rand + '|OV_SIG_SECRET_2025');
         if (sig !== expected) return null;
         return username;
     } catch { return null; }
 }
-
 function authMiddleware(req, res, next) {
     const header = req.headers['authorization'];
     if (!header) return res.status(401).json({ error: 'No token' });
